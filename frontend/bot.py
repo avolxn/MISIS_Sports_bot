@@ -4,11 +4,16 @@ from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram.enums import ParseMode
 from aiogram import Bot, Dispatcher, types
-import backend.database
+import os
+from dotenv import load_dotenv
 
+#Загрузка ключей с .env
+load_dotenv()
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
+#Инициализация бота
 dp = Dispatcher()
-bot = Bot(token="here is the token")
+bot = Bot(BOT_TOKEN)
 
 
 @dp.message(Command("start"))

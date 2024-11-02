@@ -7,9 +7,10 @@ metadata = db.MetaData()
 students = db.Table('students', metadata, autoload_with=engine)
 schedule = db.Table('schedule', metadata, autoload_with=engine)
 
-def add_new_student(student_id: str, last_name: str, first_name: str, second_name: str) -> None:
+def add_new_student(telegram_id: str, student_id: str, last_name: str, first_name: str, second_name: str = '') -> None:
     insertion_query = students.insert.values([
         {
+            'telegram_id': telegram_id,
             'student_id': student_id, 
             'last_name': last_name, 
             'first_name': first_name, 
