@@ -1,21 +1,17 @@
-import sqlalchemy as db
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, BigInteger
+from sqlalchemy.orm import declarative_base
 
-engine = db.create_engine('sqlite:///data.db')
-conn = engine.connect()
-metadata = db.MetaData()
+Base = declarative_base()
 
-students = db.Table('students', metadata,
-                    db.Column('telegram_id', db.Text, primary_key=True),
-                    db.Column('student_id', db.Text),
-                    db.Column('last_name', db.Text),
-                    db.Column('first_name', db.Text),
-                    db.Column('points', db.Integer),
-                    db.Column('current_pair', db.Text, nullable=True)
-                    )
-schedule = db.Table('schedule', metadata,
-                    db.Column('id', db.Text, primary_key=True),
-                    db.Column('day', db.DateTime),
-                    db.Column('pair', db.Integer),
-                    db.Column('gym', db.Integer),
-                    )
-metadata.create_all(engine)
+# Здесь через КЛАССЫ описываются все таблички, их соответсвенно тоже нужно переделать
+# Кстати, типы полей в postgresql отличаются от тех, что есть в sqlite, тоже имей ввиду
+# Один класс я уже оформил для примера, другие же модели я отправил в группу (там фотки с табличками)
+
+class Student(Base):
+    __tablename__ = "users"
+    id = Column(BigInteger(), index=True, nullable=False, primary_key=True)
+    student_id = Column(Integer())
+    first_name = Column(String())
+    last_name = Column(String())
+    patronymic = Column(String(), default = None)
+    points = Column(Integer(), default = 0)

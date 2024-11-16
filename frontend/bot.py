@@ -1,27 +1,25 @@
 import asyncio
-from aiogram import F
-from aiogram.types import Message
 from aiogram.filters import Command
 from aiogram.fsm.context import FSMContext
 from aiogram import Bot, Dispatcher, types
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
-import os
-from dotenv import load_dotenv
-
 from frontend.text import *     # Текст на разных языках
 from frontend.register import * # Состояния в "диалогах"
 from backend.database import *  # Функции бэкенда
 
-# Загрузка ключей с .env
-load_dotenv()
-BOT_TOKEN = os.getenv("BOT_TOKEN")
+from config import BOT_TOKEN
 
 # Инициализация бота
 dp = Dispatcher()
 bot = Bot(BOT_TOKEN)
 
 #Регистрация нужных нам функций и их хендлеров
+
+
+#!!!!! !!! Вот именно поэтому и нужны роутеры, чтобы
+# по отдельности не регать функции из других файлов 
+
 dp.message.register(reg_start, States.last_name)
 dp.message.register(lastname_chosen, States.first_name)
 dp.message.register(first_name_chosen, States.student_id)
@@ -47,7 +45,7 @@ async def profile(message: types.Message) -> None:
     buttons.add(
     types.InlineKeyboardButton(
         text=SIGN_UP[int(isEnglish)],
-        callback_data="signing_up"),
+        callback_data="signing_up"), # зачем ing-овое окончание?))))))
     types.InlineKeyboardButton(
         text=EDIT_PROFILE[int(isEnglish)],
         callback_data="edit_profile")
@@ -66,6 +64,7 @@ async def language(message: types.Message) -> None:
 
 
 async def main():
+    await init_db()
     await dp.start_polling(bot)
 
 

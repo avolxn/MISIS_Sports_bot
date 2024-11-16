@@ -2,11 +2,7 @@ from aiogram import types
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
-from .text import *
-
-import sys
-sys.path.insert(1, '..')
-from backend.database import *
+from text import *
 
 class States(StatesGroup):
     last_name = State()
@@ -15,6 +11,7 @@ class States(StatesGroup):
     reg_finished = State()
 
 
+# Почитай про машины состояния получше и подумай, как убрать класс юзер (он точно здесь не нужен)
 class User:
     def __init__(self, last_name: str='', first_name: str='', student_id: str=''):
         self.last_name = last_name
@@ -53,5 +50,6 @@ async def student_id_chosen(message: types.Message, state: FSMContext) -> None:
         student_id=userdata.student_id)
     await message.answer(REGISTERED_SUCCESSFULLY[int(isEnglish)]+f'\n\
 {userdata.last_name} {userdata.first_name} ({userdata.student_id})')
+     # Вот такие длинны форматные строки нужно писать в text.py
     await state.clear()
     
