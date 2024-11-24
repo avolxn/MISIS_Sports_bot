@@ -1,5 +1,3 @@
-isEnglish = False
-
 LETS_SIGNUP = [
     'Давай сначала зарегистрируемся',
     'Let\'s sign up first'
