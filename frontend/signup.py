@@ -20,7 +20,6 @@ class ChooseSchedule(StatesGroup):
 
 def days_keyboard(is_english: int):
     today = datetime.now()
-    today = datetime(2024,11,28)
     current_day = today.weekday()
 
     if current_day >= 5:

@@ -1,3 +1,48 @@
 /venv/
 /__pycache__/
 .env
+# Python
+*.pyc
+__pycache__/
+
+# venv
+venv/
+env/
+.venv/
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+
+# Jupyter Notebooks
+.ipynb_checkpoints
+
+# Logs
+*.log
+
+# Environment variables file
+.env
+
+# SQLite database
+*.sqlite3
+
+# Bytecode-compiled files
+*.pyd
+*.pyo
+
+# Dist and build directories
+dist/
+build/
+*.egg-info/
+
+# mypy
+.mypy_cache/
+
+# Coverage reports
+.coverage
+*.coveragerc
+
+# other ignored files
+*.swp
