@@ -7,6 +7,7 @@ from aiogram.utils.keyboard import InlineKeyboardBuilder
 from .text import *     # Текст на разных языках
 from .register import * # Состояния в "диалогах"
 from .register import router as register_router
+from .signup import router as signup_router
 from backend.database import *  # Функции бэкенда
 
 from config import BOT_TOKEN

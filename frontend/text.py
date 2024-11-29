@@ -36,3 +36,34 @@ EDIT_PROFILE = [
     'Редактировать профиль',
     'Edit profile',
 ]
+CHOOSE_THE_DAY = [
+    'На какой день хотите записаться',
+    'Choose the day'
+]
+CHOOSE_THE_PAIR = [
+    'На какое время?',
+    'Choose the time'
+]
+CHOOSE_THE_GYM = [
+    'В какой спортзал?',
+    'Where do you want to go?'
+]
+SIGNED_UP_SUCCESSFULLY = [
+    'Вы успешно записаны!',
+    'Signed up successfully!'
+]
+FREE_SLOTS = ['мест свободно', 'free slots left']
+GYM = [
+    [
+        'Игровой зал',
+        'Тренировочный зал',
+        'Зал фитнеса',
+        'Зал бокса'
+    ], 
+    [
+        'Game gym',
+        'Training gym',
+        'Fitness gym',
+        'Box gym'
+    ]
+]

@@ -43,6 +43,7 @@ async def first_name_chosen(message: types.Message, state: FSMContext) -> None:
 async def student_id_chosen(message: types.Message, state: FSMContext) -> None:
     await state.update_data(student_id=message.text)
     await state.update_data(is_english=False)
+    await state.update_data(points=0)
     userdata = await state.get_data()
     
     # Регистрируем студента

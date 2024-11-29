@@ -13,7 +13,17 @@ class Student(Base):
     student_id = Column(BigInteger())
     last_name = Column(String())
     first_name = Column(String())
-#   patronymic = Column(String(), default = None) # Так мы же в итоге решили, что отчеСтВО нам не нужно :/
     points = Column(Integer(), default = 0)
     def __repr__(self):
         return f"Student(telegramid='{self.telegram_id}', studentid='{self.student_id}', lastname='{self.last_name}', firstname='{self.first_name}')"
+
+
+class Schedule(Base):
+    __tablename__ = "pairs"
+    id = Column(BigInteger(), primary_key=True)
+    date = Column(DateTime())
+    pair = Column(Integer())
+    gym = Column(Integer())
+    free_slots_left = Column(Integer(), default = 30)
+    def __repr__(self):
+        return f"Pair(id='{self.id}', date='{self.datetime}', pair='{self.pair}', capacity='{self.free_slots_left}')"
