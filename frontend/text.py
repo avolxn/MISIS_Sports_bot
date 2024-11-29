@@ -67,3 +67,8 @@ GYM = [
         'Box gym'
     ]
 ]
+
+DAYS = [
+    ['Понедельник', 'Вторник', 'Среда', 'Четверг', 'Пятница', 'Суббота', 'Воскресенье'],
+    ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+]
