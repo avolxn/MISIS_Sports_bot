@@ -1,70 +1,90 @@
+PROFILE_TEXT = ['%s %s (%s)\n%s баллов', '%s %s (%s)\n%s points']
 LETS_SIGNUP = [
-    'Давай сначала зарегистрируемся',
-    'Let\'s sign up first'
+    'Привет!👋 Давай сначала зарегистрируемся!',
+    'Hi!👋 Let\'s sign up first!'
 ]
 LONG_TIME_NO_SEE = [
-    'Давно не виделись :)',
-    'Long time no see :)'
+    'Давно не виделись :) Привет, %s',
+    'Long time no see :) Hello, %s'
 ]
 WHATS_LASTNAME = [
-    'Какая ваша фамилия?',
-    'What\'s your last name? Please, write it in Russian.'
+    'Введите Вашу фамилию',
+    'Write your last name in Russian'
+]
+ERROR_LASTNAME = [
+    '❌ Пожалуйста, введите корректную фамилию на русском',
+    '❌ Please enter correct lastname in Russian'
 ]
 WHATS_FIRSTNAME = [
-    'Какое ваше имя?',
-    'What\'s your first name? Please, write it in Russian.'
+    'Введите Ваше имя',
+    'Write your first name in Russian'
+]
+ERROR_FIRSTNAME = [
+    '❌ Пожалуйста, введите корректное имя на русском',
+    '❌ Please enter correct firstname in Russian'
 ]
 WHATS_STUDENTID = [
-    'Введите ваш номер студенческого билета',
+    'Введите номер Вашего студенческого билета',
     'Input your student ID'
 ]
-REGISTERED_SUCCESSFULLY = [
-    'Вы успешно зарегистрированы. А теперь проверьте свой /profile',
-    'The registration is completed. Now check your /profile'
+ERROR_STUDENTID = [
+    '❌ Пожалуйста, введите корректный номер студенческого билета',
+    '❌ Please enter a correct student ID number'
 ]
-LANGUAGE_SWITCHED = [
-    'Язык сменён на русский.',
-    'Language has been switched to English.',
+
+REGISTERED_SUCCESSFULLY = [
+    '✅ Вы успешно зарегистрированы. Проверьте свой /profile',
+    '✅ The registration is completed. Check your /profile'
+]
+
+CHOOSE_LANGUAGE = '🇷🇺 Выберите язык / 🇬🇧 Choose your language'
+
+LANGUAGE_SWITCHED = [ #Это потом поменять надо будет
+    '🇷🇺 Язык сменён на русский',
+    '🇬🇧 Language has been switched to English',
 ]
 
 POINTS = ['баллов', 'points']
+
 SIGN_UP = [
-    'Записаться на секцию', 
-    'Sign up to section'
+    '✍️ Записаться на секцию',
+    '✍️ Sign up to section'
 ]
+
 EDIT_PROFILE = [
-    'Редактировать профиль',
-    'Edit profile',
+    '⚙️ Редактировать профиль',
+    '⚙️ Edit profile',
 ]
+
 CHOOSE_THE_DAY = [
-    'На какой день хотите записаться',
-    'Choose the day'
+    '🗓️ Выберите день записи',
+    '🗓️ Choose the day'
 ]
 CHOOSE_THE_PAIR = [
-    'На какое время?',
-    'Choose the time'
+    '🕝 Выберите время записи',
+    '🕝 Choose the time'
 ]
 CHOOSE_THE_GYM = [
-    'В какой спортзал?',
-    'Where do you want to go?'
+    'Выберите зал',
+    'Choose the gym'
 ]
 SIGNED_UP_SUCCESSFULLY = [
-    'Вы успешно записаны!',
-    'Signed up successfully!'
+    '✅ Вы успешно записаны!',
+    '✅ Signed up successfully!'
 ]
 FREE_SLOTS = ['мест свободно', 'free slots left']
 GYM = [
     [
-        'Игровой зал',
-        'Тренировочный зал',
-        'Зал фитнеса',
-        'Зал бокса'
+        '🏀 Игровой зал',
+        '🏋️ Тренировочный зал',
+        '🏃 Зал фитнеса',
+        '🥊 Зал бокса'
     ], 
     [
-        'Game gym',
-        'Training gym',
-        'Fitness gym',
-        'Box gym'
+        '🏀 Game gym',
+        '🏋️ Training gym',
+        '🏃 Fitness gym',
+        '🥊 Box gym'
     ]
 ]
 

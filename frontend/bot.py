@@ -18,6 +18,7 @@ bot = Bot(BOT_TOKEN)
 
 # Подключаем все сообщения регистрации
 dp.include_router(register_router)
+dp.include_router(signup_router)
 
 
 # start - запуск бота (регистрация)
@@ -25,9 +26,10 @@ dp.include_router(register_router)
 async def cmd_start(message: types.Message, state: FSMContext) -> None:
     buffer = await get_userdata(message.from_user.username)
     await state.update_data(is_english=False)
-    userdata = await state.get_data()
+    data = await state.get_data()
+    is_english = int(data.get('is_english', False))
     if not buffer:
-        await message.answer(LETS_SIGNUP[userdata['is_english']])
+        await message.answer(LETS_SIGNUP[is_english])
         await reg_start(message=message, state=state)
     else:
         await state.set_data({
@@ -37,35 +39,41 @@ async def cmd_start(message: types.Message, state: FSMContext) -> None:
             'is_english': False,
             'points': buffer.points,
         })
-        userdata = await state.get_data()
-        await message.answer(LONG_TIME_NO_SEE[int(userdata['is_english'])]+' Привет, '+userdata['first_name'])
+        data = await state.get_data()
+        first_name = data.get('first_name')
+        await message.answer(LONG_TIME_NO_SEE[is_english]%(first_name))
     return
 
 
 # profile - личный кабинет
 @dp.message(Command("profile"))
 async def profile(message: types.Message, state: FSMContext) -> None:
-    userdata = await state.get_data()
+    data = await state.get_data()
+    last_name = data.get('last_name')
+    first_name = data.get('first_name')
+    student_id = data.get('student_id')
+    points = data.get('points')
+    is_english = int(data.get('is_english', False))
     buttons = InlineKeyboardBuilder()
     buttons.add(
     types.InlineKeyboardButton(
-        text=SIGN_UP[int(userdata['is_english'])],
-        callback_data="sign_up"), # зачем ing-овое окончание?)))))) 
-        # Ну потому что.... эээ... Ну потому что... ну потому что потому!
+        text=SIGN_UP[is_english],
+        callback_data="sign_up"),
     types.InlineKeyboardButton(
-        text=EDIT_PROFILE[int(userdata['is_english'])],
+        text=EDIT_PROFILE[is_english],
         callback_data="edit_profile")
     )
-    await message.answer(text=f'{userdata['last_name']} {userdata['first_name']} ({userdata['student_id']})\n\
-{userdata['points']} '+POINTS[int(userdata['is_english'])], reply_markup=buttons.as_markup())
+    await message.answer(text=PROFILE_TEXT[is_english]%(last_name, first_name, student_id, str(points)), 
+                         reply_markup=buttons.as_markup())
 
 
 # language - смена языка на английский/русский
 @dp.message(Command("language"))
 async def language(message: types.Message, state: FSMContext) -> None:
-    userdata = await state.get_data()
-    await state.update_data(is_english=not(userdata['is_english']))
-    await message.answer(LANGUAGE_SWITCHED[not(userdata['is_english'])])
+    data = await state.get_data()
+    is_english = int(data.get('is_english', False))
+    await state.update_data(is_english=not(is_english))
+    await message.answer(LANGUAGE_SWITCHED[not(is_english)])
 
 
 async def main():
