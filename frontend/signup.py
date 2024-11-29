@@ -20,18 +20,19 @@ class ChooseSchedule(StatesGroup):
 
 def days_keyboard(is_english: int):
     today = datetime.now()
+    today = datetime(2024,11,28)
     current_day = today.weekday()
 
     if current_day >= 5:
-        start_next_week = today + timedelta(days=(7 - current_day))
-        start_day = start_next_week.weekday()
+        start_date = today + timedelta(days=(7 - current_day))
     else:
-        start_day = current_day
+        start_date = today
 
     buttons = []
-    for i in range(start_day, start_day + 5):
+    for i in range(start_date.weekday(), 5):
+        current_date = start_date + timedelta(days=i)
         day_name = DAYS[is_english][i % 7]
-        formatted_date = (today + timedelta(days=(i - current_day))).strftime("%d.%m")
+        formatted_date = current_date.strftime("%d.%m")
         buttons.append([InlineKeyboardButton(text=f"{day_name} {formatted_date}", callback_data='weekday_'+day_name)])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
@@ -79,7 +80,7 @@ async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     await state.update_data(day=callback.data.split('_')[1])
     data = await state.get_data()
     is_english = int(data.get('is_english', False))
-    await callback.message.answer(CHOOSE_THE_PAIR[is_english], reply_markup=pairs_keyboard(is_english))
+    await callback.message.edit_text(CHOOSE_THE_PAIR[is_english], reply_markup=pairs_keyboard(is_english))
     await state.set_state(ChooseSchedule.gym)
     await callback.answer()
 
@@ -89,7 +90,7 @@ async def pair_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     await state.update_data(day=callback.data.split('_')[1])
     data = await state.get_data()
     is_english = int(data.get('is_english', False))
-    await callback.message.answer(CHOOSE_THE_GYM[is_english], reply_markup=gyms_keyboard(is_english))
+    await callback.message.edit_text(CHOOSE_THE_GYM[is_english], reply_markup=gyms_keyboard(is_english))
     await state.set_state(ChooseSchedule.sign_up_finished)
     await callback.answer()
 

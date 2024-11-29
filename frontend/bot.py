@@ -55,11 +55,12 @@ async def profile(message: types.Message, state: FSMContext) -> None:
     points = data.get('points')
     is_english = int(data.get('is_english', False))
     buttons = InlineKeyboardBuilder()
-    buttons.adjust(4)
-    buttons.add(
+    buttons.row(
     types.InlineKeyboardButton(
         text=SIGN_UP[is_english],
-        callback_data="sign_up"),
+        callback_data="sign_up")
+    )
+    buttons.row(
     types.InlineKeyboardButton(
         text=EDIT_PROFILE[is_english],
         callback_data="edit_profile")
