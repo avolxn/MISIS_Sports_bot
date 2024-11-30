@@ -48,7 +48,7 @@ def pairs_keyboard(is_english: int):
     for pair in pairs_schedule:
         if current_time < pair["start"]: 
             start = pair['start']
-            end = pair['start']
+            end = pair['end']
             buttons.append([InlineKeyboardButton(text="%02d:%02d - %02d:%02d"%(start.hour, start.minute, end.hour, end.minute), 
                                                  callback_data='pair_'+str(pair['pair']))])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
