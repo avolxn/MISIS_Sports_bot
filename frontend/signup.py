@@ -33,7 +33,6 @@ def days_keyboard(is_english: int):
         day_name = DAYS[is_english][i % 7]
         formatted_date = current_date.strftime("%d.%m")
         buttons.append([InlineKeyboardButton(text=f"{day_name} {formatted_date}", callback_data='weekday_'+str(i))])
-        buttons.append([InlineKeyboardButton(text=f"{day_name} {formatted_date}", callback_data='weekday_'+str(i))])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -75,11 +74,9 @@ async def signup_start(callback: types.CallbackQuery, state: FSMContext) -> None
     await callback.answer()
 
 # Выбор пары
-# Выбор пары
 @router.callback_query(lambda callback: callback.data.startswith('weekday_'))
 async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     day = callback.data.split('_')[1]
-    if day: await state.update_data(day=int(day))
     if day: await state.update_data(day=int(day))
     data = await get_userdata(telegram_id=callback.from_user.id)
     is_english = int(data.is_english)
@@ -90,8 +87,6 @@ async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
 # Выбор зала
 @router.callback_query(lambda callback: callback.data.startswith('pair_'))
 async def pair_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
-    pair = callback.data.split('_')[1]
-    await state.update_data(pair=int(pair))
     pair = callback.data.split('_')[1]
     await state.update_data(pair=int(pair))
     data = await get_userdata(telegram_id=callback.from_user.id)
@@ -114,10 +109,10 @@ async def gym_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     is_english = int(data.is_english)
 
     message = (
-        f"{SIGNED_UP_SUCCESSFULLY[is_english]} \n"
-        f"{CHOOSE_THE_DAY[is_english]}: {DAYS[is_english][day % 7]}, \n"
-        f"{CHOOSE_THE_PAIR[is_english]}: {pair}, \n"
-        f"{CHOOSE_THE_GYM[is_english]}: {GYM[is_english][gym]}. \n"
+        f"{SIGNED_UP_SUCCESSFULLY[is_english]}\n"
+        f"{CHOSEN_DAY[is_english]}: {DAYS[is_english][day % 7]}\n"
+        f"{CHOSEN_PAIR[is_english]}: {pair}\n"
+        f"{CHOSEN_GYM[is_english]}: {GYM[is_english][gym]}\n"
     )
 
     await callback.message.edit_text(message)
