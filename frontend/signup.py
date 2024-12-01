@@ -111,9 +111,9 @@ async def gym_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
 
     message = (
         f"{SIGNED_UP_SUCCESSFULLY[is_english]} \n"
-        f"{CHOOSE_THE_DAY[is_english]}: {DAYS[is_english][day % 7]}, \n"
-        f"{CHOOSE_THE_PAIR[is_english]}: {pair}, \n"
-        f"{CHOOSE_THE_GYM[is_english]}: {GYM[is_english][gym]}. \n"
+        f"{CHOOSEN_DAY[is_english]}: {DAYS[is_english][day % 7]}, \n"
+        f"{CHOOSEN_PAIR[is_english]}: {pair}, \n"
+        f"{CHOOSEN_GYM[is_english]}: {GYM[is_english][gym]}. \n"
     )
 
     await callback.message.edit_text(message)
