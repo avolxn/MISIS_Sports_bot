@@ -4,8 +4,8 @@ LETS_SIGNUP = [
     'Hi!👋 Let\'s sign up first!'
 ]
 LONG_TIME_NO_SEE = [
-    'Давно не виделись :) Привет, %s',
-    'Long time no see :) Hello, %s'
+    'Давно не виделись :) \nПривет, %s!',
+    'Long time no see :) \nHello, %s!'
 ]
 WHATS_LASTNAME = [
     'Введите Вашу фамилию',
@@ -40,8 +40,8 @@ REGISTERED_SUCCESSFULLY = [
 CHOOSE_LANGUAGE = '🇷🇺 Выберите язык / 🇬🇧 Choose your language'
 
 LANGUAGE_SWITCHED = [ #Это потом поменять надо будет
-    '🇷🇺 Язык сменён на русский',
-    '🇬🇧 Language has been switched to English',
+    'Язык сменён на русский 🇷🇺',
+    'Language has been switched to English 🇬🇧',
 ]
 
 POINTS = ['баллов', 'points']
