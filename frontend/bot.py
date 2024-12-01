@@ -24,36 +24,23 @@ dp.include_router(signup_router)
 # start - запуск бота (регистрация)
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext) -> None:
-    buffer = await get_userdata(message.from_user.username)
-    await state.update_data(is_english=False)
-    data = await state.get_data()
-    is_english = int(data.get('is_english', False))
-    if not buffer:
-        await message.answer(LETS_SIGNUP[is_english])
+    data = await get_userdata(message.from_user.id)
+    if not data:
+        #await message.answer(LETS_SIGNUP[is_english])
         await reg_start(message=message, state=state)
     else:
-        await state.set_data({
-            'student_id': buffer.student_id,
-            'last_name': buffer.last_name,
-            'first_name': buffer.first_name,
-            'is_english': False,
-            'points': buffer.points,
-        })
-        data = await state.get_data()
-        first_name = data.get('first_name')
-        await message.answer(LONG_TIME_NO_SEE[is_english]%(first_name))
+        await message.answer(LONG_TIME_NO_SEE[int(data.is_english)]%(data.first_name))
     return
 
 
 # profile - личный кабинет
 @dp.message(Command("profile"))
 async def profile(message: types.Message, state: FSMContext) -> None:
-    data = await state.get_data()
-    last_name = data.get('last_name')
-    first_name = data.get('first_name')
-    student_id = data.get('student_id')
-    points = data.get('points')
-    is_english = int(data.get('is_english', False))
+    data = await get_userdata(message.from_user.id)
+    if not data:
+        await reg_start(message=message, state=state)
+        return
+    is_english = int(data.is_english)
     buttons = InlineKeyboardBuilder()
     buttons.row(
     types.InlineKeyboardButton(
@@ -65,17 +52,17 @@ async def profile(message: types.Message, state: FSMContext) -> None:
         text=EDIT_PROFILE[is_english],
         callback_data="edit_profile")
     )
-    await message.answer(text=PROFILE_TEXT[is_english]%(last_name, first_name, student_id, str(points)), 
+    await message.answer(text=PROFILE_TEXT[is_english]%(data.last_name, data.first_name, data.student_id, data.points), 
                          reply_markup=buttons.as_markup())
 
 
 # language - смена языка на английский/русский
 @dp.message(Command("language"))
 async def language(message: types.Message, state: FSMContext) -> None:
-    data = await state.get_data()
-    is_english = int(data.get('is_english', False))
-    await state.update_data(is_english=not(is_english))
-    await message.answer(LANGUAGE_SWITCHED[not(is_english)])
+    await update_language(message.from_user.id)
+    data = await get_userdata(message.from_user.id)
+    is_english = int(data.is_english)
+    await message.answer(LANGUAGE_SWITCHED[is_english])
 
 
 async def main():

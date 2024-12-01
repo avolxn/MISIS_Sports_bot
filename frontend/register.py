@@ -11,17 +11,31 @@ router = Router()
 
 # Машина состояний
 class User(StatesGroup):
+    language = State()
     last_name = State()
     first_name = State()
     student_id = State()
     reg_finished = State()
 
 # Начало регистрации
-@router.message(User.last_name)
+@router.message(User.language)
 async def reg_start(message: types.Message, state: FSMContext) -> None:
+    kb = [
+        [types.KeyboardButton(text="English")],
+        [types.KeyboardButton(text="Русский")]
+    ]
+    keyboard = types.ReplyKeyboardMarkup(keyboard=kb)
+    await message.answer(CHOOSE_LANGUAGE, reply_markup=keyboard)
+    await state.set_state(User.last_name)
+    
+@router.message(User.last_name)
+async def language_chosen(message: types.Message, state: FSMContext) -> None:
+    if not message.text in ['English', 'Русский']:
+        await message.answer(CHOOSE_LANGUAGE)
+        return
+    await state.update_data(is_english=(message.text=='English'))
     data = await state.get_data()
-    is_english = int(data.get('is_english', False))
-    await message.answer(WHATS_LASTNAME[is_english])
+    await message.answer(WHATS_LASTNAME[data['is_english']], reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(User.first_name)
 
 # Получение фамилии
@@ -52,19 +66,18 @@ async def first_name_chosen(message: types.Message, state: FSMContext) -> None:
 @router.message(User.reg_finished)
 async def student_id_chosen(message: types.Message, state: FSMContext) -> None:
     data = await state.get_data()
+    is_english = int(data.get('is_english', False))
     if not re.match(r'^\d{7}$', message.text):
-        await message.answer(ERROR_STUDENTID[data['is_english']])
+        await message.answer(ERROR_STUDENTID[is_english])
         return
-    await state.update_data(student_id=message.text)
-    await state.update_data(is_english=False)
-    await state.update_data(points=0)
     data = await state.get_data()
     # Регистрируем студента
     await register_student(
-        telegram_id=message.from_user.username,
+        telegram_id=message.from_user.id,
         last_name=data['last_name'],
         first_name=data['first_name'],
-        student_id=data['student_id'],
+        student_id=message.text,
+        is_english=data['is_english']
     )
     # Сообщение о завершении регистрации
     await message.answer(REGISTERED_SUCCESSFULLY[data['is_english']])

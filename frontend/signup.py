@@ -44,7 +44,7 @@ def pairs_keyboard(is_english: int):
             {"pair": 4, "start": time(14, 30), "end": time(16, 5)},
         ]
     current_time = time(0,0) # datetime.now().time()
-    buttons = []
+    buttons = [[InlineKeyboardButton(text=BACK[is_english], callback_data='sign_up')]]
     for pair in pairs_schedule:
         if current_time < pair["start"]: 
             start = pair['start']
@@ -59,7 +59,7 @@ def gyms_keyboard(is_english: int):
     Дима и Богдан, надо сделать проверку на то, что на пару записано <= 30 человек
     Но, наверное, к первому спринту это необязательно.
     """
-    buttons = list()
+    buttons = [[InlineKeyboardButton(text=BACK[is_english], callback_data='weekday__')]]
     for i in range(len(GYM[is_english])):
         buttons.append([InlineKeyboardButton(text=GYM[is_english][i], callback_data='gym_'+str(i+1))])
     return InlineKeyboardMarkup(inline_keyboard=buttons)   
@@ -67,8 +67,8 @@ def gyms_keyboard(is_english: int):
 
 @router.callback_query(lambda callback: callback.data == "sign_up")
 async def signup_start(callback: types.CallbackQuery, state: FSMContext) -> None:
-    data = await state.get_data()
-    is_english = int(data.get('is_english', False))
+    data = await get_userdata(telegram_id=callback.from_user.id)
+    is_english = int(data.is_english)
     await callback.message.answer(CHOOSE_THE_DAY[is_english], reply_markup=days_keyboard(is_english))
     await state.set_state(ChooseSchedule.pair)
     await callback.answer()
@@ -76,9 +76,10 @@ async def signup_start(callback: types.CallbackQuery, state: FSMContext) -> None
 # Выбор зала
 @router.callback_query(lambda callback: callback.data.startswith('weekday_'))
 async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
-    await state.update_data(day=callback.data.split('_')[1])
-    data = await state.get_data()
-    is_english = int(data.get('is_english', False))
+    day = callback.data.split('_')[1]
+    if day: await state.update_data(day=day)
+    data = await get_userdata(telegram_id=callback.from_user.id)
+    is_english = int(data.is_english)
     await callback.message.edit_text(CHOOSE_THE_PAIR[is_english], reply_markup=pairs_keyboard(is_english))
     await state.set_state(ChooseSchedule.gym)
     await callback.answer()
@@ -87,8 +88,8 @@ async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
 @router.callback_query(lambda callback: callback.data.startswith('pair_'))
 async def pair_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     await state.update_data(day=callback.data.split('_')[1])
-    data = await state.get_data()
-    is_english = int(data.get('is_english', False))
+    data = await get_userdata(telegram_id=callback.from_user.id)
+    is_english = int(data.is_english)
     await callback.message.edit_text(CHOOSE_THE_GYM[is_english], reply_markup=gyms_keyboard(is_english))
     await state.set_state(ChooseSchedule.sign_up_finished)
     await callback.answer()

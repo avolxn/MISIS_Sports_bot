@@ -9,11 +9,12 @@ Base = declarative_base()
 
 class Student(Base):
     __tablename__ = "users"
-    telegram_id = Column(String(), primary_key=True)
+    telegram_id = Column(BigInteger(), primary_key=True)
     student_id = Column(BigInteger())
     last_name = Column(String())
     first_name = Column(String())
     points = Column(Integer(), default = 0)
+    is_english = Column(Boolean())
     def __repr__(self):
         return f"Student(telegramid='{self.telegram_id}', studentid='{self.student_id}', lastname='{self.last_name}', firstname='{self.first_name}')"
 
@@ -26,4 +27,4 @@ class Schedule(Base):
     gym = Column(Integer())
     free_slots_left = Column(Integer(), default = 30)
     def __repr__(self):
-        return f"Pair(id='{self.id}', date='{self.datetime}', pair='{self.pair}', capacity='{self.free_slots_left}')"
+        return f"Pair(id='{self.id}', date='{self.date}', pair='{self.pair}', capacity='{self.free_slots_left}')"

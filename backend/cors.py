@@ -7,20 +7,21 @@ from datetime import timedelta, datetime
 import sqlalchemy as db
 
 
-async def register_student(telegram_id: str, student_id: str, last_name: str, first_name: str) -> None:
+async def register_student(telegram_id: str, student_id: str, last_name: str, first_name: str, is_english: bool) -> None:
     async with async_session_maker() as session:
         new_student = Student(
             telegram_id=telegram_id, 
             student_id=int(student_id),
             last_name=last_name, 
             first_name=first_name,
+            is_english=is_english,
             points=0
         )
         session.add(new_student)
         await session.commit()
 
 
-async def get_userdata(telegram_id: str):
+async def get_userdata(telegram_id: int):
     async with async_session_maker() as session:
         query_select = db.select(Student).where(Student.telegram_id == telegram_id)
         result = await session.execute(query_select)
@@ -40,6 +41,16 @@ async def unsign(id: int) -> None: # Пока не работает и не ис
             update(Schedule)
             .where(Schedule.id == id)
             .values(free_slots_left=Schedule.free_slots_left + 1)
+        )
+        await session.execute(query_update)
+        await session.commit()
+
+async def update_language(telegram_id: int) -> None:
+    async with async_session_maker() as session:
+        query_update = (
+            update(Student)
+            .where(Student.telegram_id == telegram_id)
+            .values(is_english = ~Student.is_english)
         )
         await session.execute(query_update)
         await session.commit()
