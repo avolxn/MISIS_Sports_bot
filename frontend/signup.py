@@ -33,6 +33,7 @@ def days_keyboard(is_english: int):
         day_name = DAYS[is_english][i % 7]
         formatted_date = current_date.strftime("%d.%m")
         buttons.append([InlineKeyboardButton(text=f"{day_name} {formatted_date}", callback_data='weekday_'+str(i))])
+        buttons.append([InlineKeyboardButton(text=f"{day_name} {formatted_date}", callback_data='weekday_'+str(i))])
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -46,10 +47,10 @@ def pairs_keyboard(is_english: int):
     current_time = time(0,0) # datetime.now().time()
     buttons = [[InlineKeyboardButton(text=BACK[is_english], callback_data='sign_up')]]
     for pair in pairs_schedule:
-        if current_time < pair["start"]: 
+        if current_time < pair["start"]:
             start = pair['start']
             end = pair['end']
-            buttons.append([InlineKeyboardButton(text="%02d:%02d - %02d:%02d"%(start.hour, start.minute, end.hour, end.minute), 
+            buttons.append([InlineKeyboardButton(text="%02d:%02d - %02d:%02d"%(start.hour, start.minute, end.hour, end.minute),
                                                  callback_data='pair_'+str(pair['pair']))])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -74,9 +75,11 @@ async def signup_start(callback: types.CallbackQuery, state: FSMContext) -> None
     await callback.answer()
 
 # Выбор пары
+# Выбор пары
 @router.callback_query(lambda callback: callback.data.startswith('weekday_'))
 async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     day = callback.data.split('_')[1]
+    if day: await state.update_data(day=int(day))
     if day: await state.update_data(day=int(day))
     data = await get_userdata(telegram_id=callback.from_user.id)
     is_english = int(data.is_english)
@@ -87,6 +90,8 @@ async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
 # Выбор зала
 @router.callback_query(lambda callback: callback.data.startswith('pair_'))
 async def pair_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
+    pair = callback.data.split('_')[1]
+    await state.update_data(pair=int(pair))
     pair = callback.data.split('_')[1]
     await state.update_data(pair=int(pair))
     data = await get_userdata(telegram_id=callback.from_user.id)

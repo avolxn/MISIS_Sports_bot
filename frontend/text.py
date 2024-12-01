@@ -73,6 +73,18 @@ SIGNED_UP_SUCCESSFULLY = [
     '✅ Вы успешно записаны!',
     '✅ Signed up successfully!'
 ]
+CHOOSEN_DAY = [
+    'День: ',
+    'Day:'
+]
+CHOOSEN_PAIR = [
+    'Пара: ',
+    'Pair: '
+]
+CHOOSEN_GYM = [
+    'Спортзал:',
+    'Gym: '
+]
 FREE_SLOTS = ['мест свободно', 'free slots left']
 GYM = [
     [
