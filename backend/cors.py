@@ -1,7 +1,7 @@
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from sqlalchemy import insert, select, and_, update, delete
-from backend.models import Student, Schedule
+from backend.models import Student, Schedule, Records
 from backend.database import async_session_maker
 from datetime import timedelta, datetime
 import sqlalchemy as db
@@ -34,17 +34,6 @@ async def get_userdata(telegram_id: int):
 async def get_pair_info(id: int):
     pass
 
-
-async def unsign(id: int) -> None: # Пока не работает и не используется!
-    async with async_session_maker() as session:
-        query_update = (
-            update(Schedule)
-            .where(Schedule.id == id)
-            .values(free_slots_left=Schedule.free_slots_left + 1)
-        )
-        await session.execute(query_update)
-        await session.commit()
-
 async def update_language(telegram_id: int) -> None:
     async with async_session_maker() as session:
         query_update = (
@@ -56,19 +45,30 @@ async def update_language(telegram_id: int) -> None:
         await session.commit()
 
 
-async def sign_up_to_section(id: int, telegram_id: str) -> None:
+# Баллы начисляю автоматически. На случай, если Хонер-Телефон начнёт докапываться, мол,
+# у вас только обертка без БДшки
+async def sign_up_to_section(telegram_id: int, student_id: int) -> None:
     async with async_session_maker() as session:
         async with session.begin():
-            query_update_schedule = (
-                update(Schedule)
-                .where(Schedule.id == id)
-                .values(free_slots_left=Schedule.free_slots_left - 1)
+            new_record = Records(
+                student_id=student_id,
+                pair_id=0
             )
-            query_update_student = (
+            session.add(new_record)
+            query_update = (
                 update(Student)
                 .where(Student.telegram_id == telegram_id)
-                .values(points=Student.points + 10)
+                .values(points = Student.points+10)
             )
-            await session.execute(query_update_schedule)
-            await session.execute(query_update_student)
-        #ПРОВЕРКУ ПОСЕЩАЕМОСТИ РЕАЛИЗУЕМ ПОТОМ!!!
+            await session.execute(query_update)
+
+
+async def unsign(student_id: int) -> None: # Пока не работает и не используется!
+    async with async_session_maker() as session:
+        query_update = (
+            delete(Records)
+            .where(Records.id == student_id)
+            .values(free_slots_left=Schedule.free_slots_left + 1)
+        )
+        await session.execute(query_update)
+        await session.commit()

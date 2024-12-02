@@ -104,10 +104,9 @@ async def gym_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     day = statedata['day']
     pair = statedata['pair']
     gym = statedata['gym']
-    print(day, pair, gym)
     data = await get_userdata(telegram_id=callback.from_user.id)
+    await sign_up_to_section(telegram_id=callback.from_user.id, student_id=data.student_id)
     is_english = int(data.is_english)
-
     message = (
         f"{SIGNED_UP_SUCCESSFULLY[is_english]}\n"
         f"{CHOSEN_DAY[is_english]}: {DAYS[is_english][day % 7]}\n"
@@ -115,6 +114,7 @@ async def gym_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
         f"{CHOSEN_GYM[is_english]}: {GYM[is_english][gym]}\n"
     )
 
-    await callback.message.edit_text(message)
+    await callback.message.delete()
+    await callback.message.answer(message)
     await state.clear()
     await callback.answer()

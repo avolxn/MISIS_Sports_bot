@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Boolean, BigInteger
+from sqlalchemy import Column, Integer, String, DateTime, Boolean, BigInteger, ForeignKey
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -13,18 +13,41 @@ class Student(Base):
     student_id = Column(BigInteger())
     last_name = Column(String())
     first_name = Column(String())
+    patronymic = Column(String(), default=None)
     points = Column(Integer(), default = 0)
     is_english = Column(Boolean())
     def __repr__(self):
         return f"Student(telegramid='{self.telegram_id}', studentid='{self.student_id}', lastname='{self.last_name}', firstname='{self.first_name}')"
 
+class Coach(Base):
+    __tablename__ = "coaches"
+    id = Column(BigInteger(), primary_key=True)
+    telegram_id = Column(BigInteger(), default=None)
+    last_name = Column(String())
+    first_name = Column(String())
+    patronymic = Column(String(), default=None)
+    is_admin = Column(Boolean(), default=False)
+    is_approved = Column(Boolean(), default=False)
+    secret_token = Column(String())
 
 class Schedule(Base):
-    __tablename__ = "pairs"
+    __tablename__ = "schedule"
     id = Column(BigInteger(), primary_key=True)
     date = Column(DateTime())
     pair = Column(Integer())
     gym = Column(Integer())
-    free_slots_left = Column(Integer(), default = 30)
+    coach = Column(ForeignKey("coaches.id"))
+    free_places_left = Column(Integer())
     def __repr__(self):
-        return f"Pair(id='{self.id}', date='{self.date}', pair='{self.pair}', capacity='{self.free_slots_left}')"
+        return f""
+    
+
+class Records(Base):
+    __tablename__ = "records"
+    id = Column(BigInteger(), primary_key=True, autoincrement=True)
+    student_id = Column(BigInteger())
+    pair_id = Column(BigInteger()) # Column(ForeignKey("schedule.id"))
+    approved = Column(Boolean(), default=False)
+    def __repr__(self):
+        return f""
+    
