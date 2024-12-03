@@ -21,8 +21,8 @@ class User(StatesGroup):
 @router.message(User.language)
 async def reg_start(message: types.Message, state: FSMContext) -> None:
     kb = [
-        [types.KeyboardButton(text="English")],
-        [types.KeyboardButton(text="Русский")]
+        [types.KeyboardButton(text="🇬🇧 English")],
+        [types.KeyboardButton(text="🇷🇺 Русский")]
     ]
     keyboard = types.ReplyKeyboardMarkup(keyboard=kb)
     await message.answer(CHOOSE_LANGUAGE, reply_markup=keyboard)
@@ -30,10 +30,10 @@ async def reg_start(message: types.Message, state: FSMContext) -> None:
     
 @router.message(User.last_name)
 async def language_chosen(message: types.Message, state: FSMContext) -> None:
-    if not message.text in ['English', 'Русский']:
+    if not message.text in ['🇬🇧 English', '🇷🇺 Русский']:
         await message.answer(CHOOSE_LANGUAGE)
         return
-    await state.update_data(is_english=(message.text=='English'))
+    await state.update_data(is_english=(message.text=='🇬🇧 English'))
     data = await state.get_data()
     await message.answer(WHATS_LASTNAME[data['is_english']], reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(User.first_name)

@@ -26,11 +26,13 @@ def days_keyboard(is_english: int):
         start_date = today + timedelta(days=(7 - current_day))
     else:
         start_date = today
-
+    start_day = start_date.weekday()
     buttons = []
-    for i in range(start_date.weekday(), 5):
+    for i in range(5-start_day):
         current_date = start_date + timedelta(days=i)
-        day_name = DAYS[is_english][i % 7]
+        current_day = current_date.weekday()
+        print(i, current_date)
+        day_name = DAYS[is_english][current_day % 7]
         formatted_date = current_date.strftime("%d.%m")
         buttons.append([InlineKeyboardButton(text=f"{day_name} {formatted_date}", callback_data='weekday_'+str(i))])
 
