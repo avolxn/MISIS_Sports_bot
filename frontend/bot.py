@@ -24,6 +24,14 @@ dp.include_router(signup_router)
 # start - запуск бота (регистрация)
 @dp.message(Command("start"))
 async def cmd_start(message: types.Message, state: FSMContext) -> None:
+    """
+    Если пользователь новый, то перенаправление на регистрацию.
+    Если пользователь уже есть в БД, то бот пришлёт приветствие.
+    Args:
+        message (types.Message): Отправленное сообщение
+        state (FSMContext): Машина состояний
+    Returns: None
+    """
     data = await get_userdata(message.from_user.id)
     if not data:
         #await message.answer(LETS_SIGNUP[is_english])
@@ -36,6 +44,14 @@ async def cmd_start(message: types.Message, state: FSMContext) -> None:
 # profile - личный кабинет
 @dp.message(Command("profile"))
 async def profile(message: types.Message, state: FSMContext) -> None:
+    """
+    Сообщение с выводом ФИО и баллов студента. Отсюда можно записаться на пару.
+    Если пользователь не зарегистрирован, то его переносит на регистрацию.
+    Args: 
+        message (types.Message): Отправленное сообщение
+        state (FSMContext): Машина состояний
+    Returns: None
+    """
     data = await get_userdata(message.from_user.id)
     if not data:
         await reg_start(message=message, state=state)
@@ -58,7 +74,13 @@ async def profile(message: types.Message, state: FSMContext) -> None:
 
 # language - смена языка на английский/русский
 @dp.message(Command("language"))
-async def language(message: types.Message, state: FSMContext) -> None:
+async def language(message: types.Message) -> None:
+    """
+    Свап языка с англ. на рус. и наоборот
+    Args:
+        message (types.Message): Отправленное сообщение
+    Returns: None
+    """
     await update_language(message.from_user.id)
     data = await get_userdata(message.from_user.id)
     is_english = int(data.is_english)

@@ -20,6 +20,13 @@ class User(StatesGroup):
 # Начало регистрации
 @router.message(User.language)
 async def reg_start(message: types.Message, state: FSMContext) -> None:
+    """
+    В начале спрашиваем у пользователя язык
+    Args:
+        message (types.Message): Сообщение, отправленное пользователем.
+        state (FSMContext): Машина состояний
+    Returns: None
+    """
     kb = [
         [types.KeyboardButton(text="🇬🇧 English")],
         [types.KeyboardButton(text="🇷🇺 Русский")]
@@ -30,6 +37,14 @@ async def reg_start(message: types.Message, state: FSMContext) -> None:
     
 @router.message(User.last_name)
 async def language_chosen(message: types.Message, state: FSMContext) -> None:
+    """
+    Спрашиваем фамилию, затем в следующих функциях имя и студ.билет.
+    Есть проверка на корректность данных.
+    Args:
+        message (types.Message): Сообщение, отправленное пользователем.
+        state (FSMContext): Машина состояний
+    Returns: None
+    """
     if not message.text in ['🇬🇧 English', '🇷🇺 Русский']:
         await message.answer(CHOOSE_LANGUAGE)
         return
@@ -41,6 +56,7 @@ async def language_chosen(message: types.Message, state: FSMContext) -> None:
 # Получение фамилии
 @router.message(User.first_name)
 async def lastname_chosen(message: types.Message, state: FSMContext) -> None:
+    """документацию см. в language_chosen"""
     data = await state.get_data()
     if not re.match(r'^[А-Яа-яЁё]+(?:[- ]?[А-Яа-яЁё]+)*$', message.text):
         await message.answer(ERROR_LASTNAME[data['is_english']])
@@ -53,6 +69,7 @@ async def lastname_chosen(message: types.Message, state: FSMContext) -> None:
 # Получение имени
 @router.message(User.student_id)
 async def first_name_chosen(message: types.Message, state: FSMContext) -> None:
+    """документацию см. в language_chosen"""
     data = await state.get_data()
     if not re.match(r'^[А-Яа-яЁё]+(?:[- ]?[А-Яа-яЁё]+)*$', message.text):
         await message.answer(ERROR_FIRSTNAME[data['is_english']])
@@ -65,6 +82,11 @@ async def first_name_chosen(message: types.Message, state: FSMContext) -> None:
 # Получение ID и завершение регистрации
 @router.message(User.reg_finished)
 async def student_id_chosen(message: types.Message, state: FSMContext) -> None:
+    """
+    Проверяем номер студ. билета
+    После этого в базе данных создаем нового пользователя. 
+    Можно смело записываться на пары.
+    """
     data = await state.get_data()
     is_english = int(data.get('is_english', False))
     if not re.match(r'^\d{7}$', message.text):
