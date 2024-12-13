@@ -26,7 +26,7 @@ class Coach(Base):
     last_name = Column(String())
     first_name = Column(String())
     patronymic = Column(String(), default=None)
-    is_admin = Column(Boolean(), default=False) 
+    is_admin = Column(Boolean(), default=False)
     is_approved = Column(Boolean(), default=False)
     secret_token = Column(String())
 
