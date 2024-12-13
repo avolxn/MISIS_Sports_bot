@@ -138,7 +138,6 @@ async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
 async def pair_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     """
     Обработчик выбора временной пары.
-
     Сохраняет выбранную пару в состоянии и показывает клавиатуру для выбора спортзала.
 
     Args:
