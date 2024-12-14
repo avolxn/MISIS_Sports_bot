@@ -36,10 +36,10 @@ async def cmd_start(message: types.Message, state: FSMContext) -> None:
     """
     data = await get_userdata(message.from_user.id)
     if not data:
-        #await message.answer(LETS_SIGNUP[is_english])
+        #await message.answer(LETS_SIGNUP[language])
         await reg_start(message=message, state=state)
     else:
-        await message.answer(LONG_TIME_NO_SEE[int(data.is_english)]%(data.first_name))
+        await message.answer(LONG_TIME_NO_SEE[int(data.language)]%(data.first_name))
     return
 
 
@@ -58,19 +58,19 @@ async def profile(message: types.Message, state: FSMContext) -> None:
     if not data:
         await reg_start(message=message, state=state)
         return
-    is_english = int(data.is_english)
+    language = int(data.language)
     buttons = InlineKeyboardBuilder()
     buttons.row(
     types.InlineKeyboardButton(
-        text=SIGN_UP[is_english],
+        text=SIGN_UP[language],
         callback_data="sign_up")
     )
     buttons.row(
     types.InlineKeyboardButton(
-        text=EDIT_PROFILE[is_english],
+        text=EDIT_PROFILE[language],
         callback_data="edit_profile")
     )
-    await message.answer(text=PROFILE_TEXT[is_english]%(data.last_name, data.first_name, data.student_id, data.points), 
+    await message.answer(text=PROFILE_TEXT[language]%(data.last_name, data.first_name, data.student_id, data.points), 
                          reply_markup=buttons.as_markup())
 
 # language - смена языка на английский/русский
@@ -84,8 +84,8 @@ async def language(message: types.Message) -> None:
     """
     await update_language(message.from_user.id)
     data = await get_userdata(message.from_user.id)
-    is_english = int(data.is_english)
-    await message.answer(LANGUAGE_SWITCHED[is_english])
+    language = int(data.language)
+    await message.answer(LANGUAGE_SWITCHED[language])
 
 
 async def main():

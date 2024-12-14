@@ -48,9 +48,9 @@ async def language_chosen(message: types.Message, state: FSMContext) -> None:
     if not message.text in ['🇬🇧 English', '🇷🇺 Русский']:
         await message.answer(CHOOSE_LANGUAGE)
         return
-    await state.update_data(is_english=(message.text=='🇬🇧 English'))
+    await state.update_data(language=(message.text=='🇬🇧 English'))
     data = await state.get_data()
-    await message.answer(WHATS_LASTNAME[data['is_english']], reply_markup=types.ReplyKeyboardRemove())
+    await message.answer(WHATS_LASTNAME[data['language']], reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(User.first_name)
 
 # Получение фамилии
@@ -59,11 +59,11 @@ async def lastname_chosen(message: types.Message, state: FSMContext) -> None:
     """документацию см. в language_chosen"""
     data = await state.get_data()
     if not re.match(r'^[А-Яа-яЁё]+(?:[- ]?[А-Яа-яЁё]+)*$', message.text):
-        await message.answer(ERROR_LASTNAME[data['is_english']])
+        await message.answer(ERROR_LASTNAME[data['language']])
         return
     await state.update_data(last_name=message.text.title())
-    is_english = int(data.get('is_english', False))
-    await message.answer(WHATS_FIRSTNAME[is_english])
+    language = int(data.get('language', False))
+    await message.answer(WHATS_FIRSTNAME[language])
     await state.set_state(User.student_id)
 
 # Получение имени
@@ -72,11 +72,11 @@ async def first_name_chosen(message: types.Message, state: FSMContext) -> None:
     """документацию см. в language_chosen"""
     data = await state.get_data()
     if not re.match(r'^[А-Яа-яЁё]+(?:[- ]?[А-Яа-яЁё]+)*$', message.text):
-        await message.answer(ERROR_FIRSTNAME[data['is_english']])
+        await message.answer(ERROR_FIRSTNAME[data['language']])
         return
     await state.update_data(first_name=message.text.title())
-    is_english = int(data.get('is_english', False))
-    await message.answer(WHATS_STUDENTID[is_english])
+    language = int(data.get('language', False))
+    await message.answer(WHATS_STUDENTID[language])
     await state.set_state(User.reg_finished)
 
 # Получение ID и завершение регистрации
@@ -88,9 +88,9 @@ async def student_id_chosen(message: types.Message, state: FSMContext) -> None:
     Можно смело записываться на пары.
     """
     data = await state.get_data()
-    is_english = int(data.get('is_english', False))
+    language = int(data.get('language', False))
     if not re.match(r'^\d{7}$', message.text):
-        await message.answer(ERROR_STUDENTID[is_english])
+        await message.answer(ERROR_STUDENTID[language])
         return
     data = await state.get_data()
     # Регистрируем студента
@@ -99,9 +99,9 @@ async def student_id_chosen(message: types.Message, state: FSMContext) -> None:
         last_name=data['last_name'],
         first_name=data['first_name'],
         student_id=message.text,
-        is_english=data['is_english']
+        language=data['language']
     )
     # Сообщение о завершении регистрации
-    await message.answer(REGISTERED_SUCCESSFULLY[data['is_english']])
+    await message.answer(REGISTERED_SUCCESSFULLY[data['language']])
     await state.clear()
     await state.set_data(data)

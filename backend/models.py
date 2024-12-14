@@ -15,7 +15,7 @@ class Student(Base):
     first_name = Column(String())
     patronymic = Column(String(), default=None)
     points = Column(Integer(), default = 0)
-    is_english = Column(Boolean())
+    language = Column(Integer(), default = 0)
     def __repr__(self):
         return f"Student(telegramid='{self.telegram_id}', studentid='{self.student_id}', lastname='{self.last_name}', firstname='{self.first_name}')"
 
@@ -50,4 +50,3 @@ class Records(Base):
     approved = Column(Boolean(), default=False)
     def __repr__(self):
         return f""
-    

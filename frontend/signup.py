@@ -18,7 +18,7 @@ class ChooseSchedule(StatesGroup):
     gym = State()
     sign_up_finished = State()
 
-async def days_keyboard(is_english: int):
+async def days_keyboard(language: int):
     """
     Создает клавиатуру с кнопками для выбора дня записи в спортзал.
     Генерирует кнопки только для рабочих дней (пн-пт):
@@ -54,9 +54,8 @@ async def days_keyboard(is_english: int):
         # Для каждого дня создаем кнопку с названием дня и датой
         current_date = start_date + timedelta(days=i)
         current_day = current_date.weekday() 
-        print(i, current_date)
         # Получаем название дня на выбранном языке
-        day_name = DAYS[is_english][current_day % 7]
+        day_name = DAYS[language][current_day % 7]
         # Форматируем дату как DD.MM
         formatted_date = current_date.strftime("%d.%m")
         # Добавляем кнопку с названием дня и датой
@@ -65,28 +64,30 @@ async def days_keyboard(is_english: int):
     # Возвращаем клавиатуру с кнопками
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-async def pairs_keyboard(is_english: int):
+async def pairs_keyboard(language: int):
     pairs_schedule = [
             {"pair": 1, "start": time(9, 0), "end": time(10, 35)},
             {"pair": 2, "start": time(10, 50), "end": time(12, 25)},
             {"pair": 3, "start": time(12, 40), "end": time(14, 15)},
             {"pair": 4, "start": time(14, 30), "end": time(16, 5)},
         ]
-    current_time = time(0,0) # datetime.now().time()
-    buttons = [[InlineKeyboardButton(text=BACK[is_english], callback_data='sign_up')]]
+    current_time = datetime.now().time()
+    buttons = []
     for pair in pairs_schedule:
         if current_time < pair["start"]:
             start = pair['start']
             end = pair['end']
             buttons.append([InlineKeyboardButton(text="%02d:%02d - %02d:%02d"%(start.hour, start.minute, end.hour, end.minute),
                                                  callback_data='pair_'+str(pair['pair']))])
+    buttons.append([InlineKeyboardButton(text=BACK[language], callback_data='sign_up')])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-async def gyms_keyboard(is_english: int):
-    buttons = [[InlineKeyboardButton(text=BACK[is_english], callback_data='weekday__')]]
-    for i in range(len(GYM[is_english])):
-        buttons.append([InlineKeyboardButton(text=GYM[is_english][i], callback_data='gym_'+str(i))])
+async def gyms_keyboard(language: int):
+    buttons = []
+    for i in range(len(GYM[language])):
+        buttons.append([InlineKeyboardButton(text=GYM[language][i], callback_data='gym_'+str(i))])
+    buttons.append([InlineKeyboardButton(text=BACK[language], callback_data='weekday__')])
     return InlineKeyboardMarkup(inline_keyboard=buttons)   
 
 
@@ -105,8 +106,8 @@ async def signup_start(callback: types.CallbackQuery, state: FSMContext) -> None
         и устанавливает состояние ChooseSchedule.pair
     """
     data = await get_userdata(telegram_id=callback.from_user.id)
-    is_english = int(data.is_english)
-    await callback.message.answer(CHOOSE_THE_DAY[is_english], reply_markup=await days_keyboard(is_english))
+    language = int(data.language)
+    await callback.message.edit_text(CHOOSE_THE_DAY[language], reply_markup=await days_keyboard(language))
     await state.set_state(ChooseSchedule.pair)
     await callback.answer()
 
@@ -128,8 +129,8 @@ async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     day = callback.data.split('_')[1]
     if day: await state.update_data(day=int(day))
     data = await get_userdata(telegram_id=callback.from_user.id)
-    is_english = int(data.is_english)
-    await callback.message.edit_text(CHOOSE_THE_PAIR[is_english], reply_markup=await pairs_keyboard(is_english))
+    language = int(data.language)
+    await callback.message.edit_text(CHOOSE_THE_PAIR[language], reply_markup=await pairs_keyboard(language))
     await state.set_state(ChooseSchedule.gym)
     await callback.answer()
 
@@ -151,8 +152,8 @@ async def pair_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     pair = callback.data.split('_')[1]
     await state.update_data(pair=int(pair))
     data = await get_userdata(telegram_id=callback.from_user.id)
-    is_english = int(data.is_english)
-    await callback.message.edit_text(CHOOSE_THE_GYM[is_english], reply_markup=await gyms_keyboard(is_english))
+    language = int(data.language)
+    await callback.message.edit_text(CHOOSE_THE_GYM[language], reply_markup=await gyms_keyboard(language))
     await state.set_state(ChooseSchedule.sign_up_finished)
     await callback.answer()
 
@@ -167,12 +168,12 @@ async def gym_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     gym = statedata['gym']
     data = await get_userdata(telegram_id=callback.from_user.id)
     await sign_up_to_section(telegram_id=callback.from_user.id, student_id=data.student_id)
-    is_english = int(data.is_english)
+    language = int(data.language)
     message = (
-        f"{SIGNED_UP_SUCCESSFULLY[is_english]}\n"
-        f"{CHOSEN_DAY[is_english]}: {DAYS[is_english][day % 7]}\n"
-        f"{CHOSEN_PAIR[is_english]}: {pair}\n"
-        f"{CHOSEN_GYM[is_english]}: {GYM[is_english][gym]}\n"
+        f"{SIGNED_UP_SUCCESSFULLY[language]}\n"
+        f"{CHOSEN_DAY[language]}: {DAYS[language][day % 7]}\n"
+        f"{CHOSEN_PAIR[language]}: {pair}\n"
+        f"{CHOSEN_GYM[language]}: {GYM[language][gym]}\n"
     )
 
     await callback.message.delete()
