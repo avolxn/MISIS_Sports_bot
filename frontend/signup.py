@@ -18,7 +18,7 @@ class ChooseSchedule(StatesGroup):
     gym = State()
     sign_up_finished = State()
 
-def days_keyboard(is_english: int):
+async def days_keyboard(is_english: int):
     """
     Создает клавиатуру с кнопками для выбора дня записи в спортзал.
     Генерирует кнопки только для рабочих дней (пн-пт):
@@ -65,7 +65,7 @@ def days_keyboard(is_english: int):
     # Возвращаем клавиатуру с кнопками
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-def pairs_keyboard(is_english: int):
+async def pairs_keyboard(is_english: int):
     pairs_schedule = [
             {"pair": 1, "start": time(9, 0), "end": time(10, 35)},
             {"pair": 2, "start": time(10, 50), "end": time(12, 25)},
@@ -83,7 +83,7 @@ def pairs_keyboard(is_english: int):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-def gyms_keyboard(is_english: int):
+async def gyms_keyboard(is_english: int):
     buttons = [[InlineKeyboardButton(text=BACK[is_english], callback_data='weekday__')]]
     for i in range(len(GYM[is_english])):
         buttons.append([InlineKeyboardButton(text=GYM[is_english][i], callback_data='gym_'+str(i))])
@@ -106,7 +106,7 @@ async def signup_start(callback: types.CallbackQuery, state: FSMContext) -> None
     """
     data = await get_userdata(telegram_id=callback.from_user.id)
     is_english = int(data.is_english)
-    await callback.message.answer(CHOOSE_THE_DAY[is_english], reply_markup=days_keyboard(is_english))
+    await callback.message.answer(CHOOSE_THE_DAY[is_english], reply_markup=await days_keyboard(is_english))
     await state.set_state(ChooseSchedule.pair)
     await callback.answer()
 
@@ -129,7 +129,7 @@ async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     if day: await state.update_data(day=int(day))
     data = await get_userdata(telegram_id=callback.from_user.id)
     is_english = int(data.is_english)
-    await callback.message.edit_text(CHOOSE_THE_PAIR[is_english], reply_markup=pairs_keyboard(is_english))
+    await callback.message.edit_text(CHOOSE_THE_PAIR[is_english], reply_markup=await pairs_keyboard(is_english))
     await state.set_state(ChooseSchedule.gym)
     await callback.answer()
 
@@ -152,7 +152,7 @@ async def pair_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     await state.update_data(pair=int(pair))
     data = await get_userdata(telegram_id=callback.from_user.id)
     is_english = int(data.is_english)
-    await callback.message.edit_text(CHOOSE_THE_GYM[is_english], reply_markup=gyms_keyboard(is_english))
+    await callback.message.edit_text(CHOOSE_THE_GYM[is_english], reply_markup=await gyms_keyboard(is_english))
     await state.set_state(ChooseSchedule.sign_up_finished)
     await callback.answer()
 

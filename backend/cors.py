@@ -64,12 +64,12 @@ async def update_lastname(telegram_id: int, last_name: str) -> None:
         await session.execute(query_update)
         await session.commit()
 
-async def update_studentid(telegram_id: int, student_id: int) -> None:
+async def update_studentid(telegram_id: int, student_id: str) -> None:
     async with async_session_maker() as session:
         query_update = (
             update(Student)
             .where(Student.telegram_id == telegram_id)
-            .values(student_id=student_id)
+            .values(student_id=int(student_id))
         )
         await session.execute(query_update)
         await session.commit()

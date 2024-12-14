@@ -8,6 +8,7 @@ from .text import *     # Текст на разных языках
 from .register import * # Состояния в "диалогах"
 from .register import router as register_router
 from .signup import router as signup_router
+from .edit_profile import router as edit_profile_router
 from backend.database import *  # Функции бэкенда
 
 from config import BOT_TOKEN
@@ -17,6 +18,7 @@ dp = Dispatcher()
 bot = Bot(BOT_TOKEN)
 
 # Подключаем все сообщения регистрации
+dp.include_router(edit_profile_router)
 dp.include_router(register_router)
 dp.include_router(signup_router)
 
@@ -50,7 +52,7 @@ async def profile(message: types.Message, state: FSMContext) -> None:
     Args: 
         message (types.Message): Отправленное сообщение
         state (FSMContext): Машина состояний
-    Returns: None
+    Retur(ns: None
     """
     data = await get_userdata(message.from_user.id)
     if not data:
