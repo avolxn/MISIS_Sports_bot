@@ -7,7 +7,7 @@ from datetime import timedelta, datetime
 import sqlalchemy as db
 
 
-async def register_student(telegram_id: str, student_id: str, last_name: str, first_name: str, language: bool) -> None:
+async def register_student(telegram_id: str, student_id: str, last_name: str, first_name: str, language: int) -> None:
     async with async_session_maker() as session:
         new_student = Student(
             telegram_id=telegram_id, 
@@ -34,12 +34,12 @@ async def get_userdata(telegram_id: int):
 async def get_pair_info(id: int):
     pass
 
-async def update_language(telegram_id: int) -> None:
+async def update_language(telegram_id: int, language: int) -> None:
     async with async_session_maker() as session:
         query_update = (
             update(Student)
             .where(Student.telegram_id == telegram_id)
-            .values(language = ~Student.language)
+            .values(language = language)
         )
         await session.execute(query_update)
         await session.commit()

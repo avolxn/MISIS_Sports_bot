@@ -29,7 +29,11 @@ async def reg_start(message: types.Message, state: FSMContext) -> None:
     """
     kb = [
         [types.KeyboardButton(text="🇬🇧 English")],
-        [types.KeyboardButton(text="🇷🇺 Русский")]
+        [types.KeyboardButton(text="🇷🇺 Русский")],
+        [types.KeyboardButton(text="🇩🇪 Deutsch")],
+        [types.KeyboardButton(text="🇸🇦 العربية")],
+        [types.KeyboardButton(text="🇮🇱 עברית")],
+        [types.KeyboardButton(text="🤖 01000010 01101001 01101110 01100001 01110010 01111001")]
     ]
     keyboard = types.ReplyKeyboardMarkup(keyboard=kb)
     await message.answer(CHOOSE_LANGUAGE, reply_markup=keyboard)
@@ -45,10 +49,10 @@ async def language_chosen(message: types.Message, state: FSMContext) -> None:
         state (FSMContext): Машина состояний
     Returns: None
     """
-    if not message.text in ['🇬🇧 English', '🇷🇺 Русский']:
+    if not message.text in LANGUAGES:
         await message.answer(CHOOSE_LANGUAGE)
         return
-    await state.update_data(language=(message.text=='🇬🇧 English'))
+    await state.update_data(language=LANGUAGES.index(message.text))
     data = await state.get_data()
     await message.answer(WHATS_LASTNAME[data['language']], reply_markup=types.ReplyKeyboardRemove())
     await state.set_state(User.first_name)

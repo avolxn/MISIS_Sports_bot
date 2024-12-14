@@ -34,6 +34,7 @@ async def cmd_start(message: types.Message, state: FSMContext) -> None:
         state (FSMContext): Машина состояний
     Returns: None
     """
+    await state.clear()
     data = await get_userdata(message.from_user.id)
     if not data:
         #await message.answer(LETS_SIGNUP[language])
@@ -54,6 +55,8 @@ async def profile(message: types.Message, state: FSMContext) -> None:
         state (FSMContext): Машина состояний
     Retur(ns: None
     """
+    await state.clear()
+    
     data = await get_userdata(message.from_user.id)
     if not data:
         await reg_start(message=message, state=state)
@@ -72,21 +75,6 @@ async def profile(message: types.Message, state: FSMContext) -> None:
     )
     await message.answer(text=PROFILE_TEXT[language]%(data.last_name, data.first_name, data.student_id, data.points), 
                          reply_markup=buttons.as_markup())
-
-# language - смена языка на английский/русский
-@dp.message(Command("language"))
-async def language(message: types.Message) -> None:
-    """
-    Свап языка с англ. на рус. и наоборот
-    Args:
-        message (types.Message): Отправленное сообщение
-    Returns: None
-    """
-    await update_language(message.from_user.id)
-    data = await get_userdata(message.from_user.id)
-    language = int(data.language)
-    await message.answer(LANGUAGE_SWITCHED[language])
-
 
 async def main() -> None:
     await init_db()

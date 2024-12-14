@@ -14,7 +14,6 @@ class EditProfile(StatesGroup):
     edit_firstname = State()
     edit_lastname = State()
     edit_studentid = State()
-    edit_language = State()
 
 async def show_edit_profile(language: int) -> InlineKeyboardBuilder:
     buttons = InlineKeyboardBuilder()
@@ -38,6 +37,16 @@ async def show_edit_profile(language: int) -> InlineKeyboardBuilder:
             text=EDIT_LANGUAGE[language],
             callback_data="edit_language")
     )
+    return buttons
+
+async def choose_language_keyboard(language: int) -> InlineKeyboardBuilder:
+    buttons = InlineKeyboardBuilder()
+    for i in range(len(LANGUAGES)):
+        buttons.row(
+            types.InlineKeyboardButton(
+                text=LANGUAGES[i],
+                callback_data=f"language_{i}")
+        )
     return buttons
 
 @router.callback_query(lambda callback: callback.data == "edit_profile")
@@ -122,3 +131,24 @@ async def edit_studentid_process(message: types.Message, state: FSMContext) -> N
         await message.answer(STUDENTID_CHANGED[language])
         await message.answer(EDIT_PROFILE[language], reply_markup=keyboard.as_markup())
         await state.clear()
+
+#Смена языка
+@router.callback_query(lambda callback: callback.data == 'edit_language')
+async def edit_language_request(callback: types.CallbackQuery, state: FSMContext) -> None:
+    data = await get_userdata(telegram_id=callback.from_user.id)
+    language = int(data.language)
+    keyboard = await choose_language_keyboard(language)
+    await callback.message.edit_text(EDIT_LANGUAGE[language], reply_markup=keyboard.as_markup())
+    await callback.answer()
+
+@router.callback_query(lambda callback: callback.data.startswith('language_'))
+async def edit_language_process(callback: types.CallbackQuery, state: FSMContext) -> None:
+    data = await get_userdata(telegram_id=callback.from_user.id)
+    print(callback.data)
+    language = int(callback.data.split('_')[1])
+    print(language)
+    await update_language(telegram_id=callback.from_user.id, language=language)
+    # await callback.answer(LANGUAGE_SWITCHED[language])
+    keyboard = await show_edit_profile(language)
+    await callback.message.edit_text(EDIT_PROFILE[language], reply_markup=keyboard.as_markup())
+    await callback.answer()
