@@ -71,7 +71,6 @@ async def profile(message: types.Message, state: FSMContext) -> None:
     await message.answer(text=PROFILE_TEXT[is_english]%(data.last_name, data.first_name, data.student_id, data.points), 
                          reply_markup=buttons.as_markup())
 
-
 # language - смена языка на английский/русский
 @dp.message(Command("language"))
 async def language(message: types.Message) -> None:

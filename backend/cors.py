@@ -44,6 +44,35 @@ async def update_language(telegram_id: int) -> None:
         await session.execute(query_update)
         await session.commit()
 
+async def update_firstname(telegram_id: int, first_name: str) -> None:
+    async with async_session_maker() as session:
+        query_update = (
+            update(Student)
+            .where(Student.telegram_id == telegram_id)
+            .values(first_name=first_name)
+        )
+        await session.execute(query_update)
+        await session.commit()
+
+async def update_lastname(telegram_id: int, last_name: str) -> None:
+    async with async_session_maker() as session:
+        query_update = (
+            update(Student)
+            .where(Student.telegram_id == telegram_id)
+            .values(last_name=last_name)
+        )
+        await session.execute(query_update)
+        await session.commit()
+
+async def update_studentid(telegram_id: int, student_id: int) -> None:
+    async with async_session_maker() as session:
+        query_update = (
+            update(Student)
+            .where(Student.telegram_id == telegram_id)
+            .values(student_id=student_id)
+        )
+        await session.execute(query_update)
+        await session.commit()
 
 # Баллы начисляю автоматически. На случай, если Хонер-Телефон начнёт докапываться, мол,
 # у вас только обертка без БДшки
