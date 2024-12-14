@@ -88,7 +88,7 @@ async def language(message: types.Message) -> None:
     await message.answer(LANGUAGE_SWITCHED[language])
 
 
-async def main():
+async def main() -> None:
     await init_db()
     await dp.start_polling(bot)
 

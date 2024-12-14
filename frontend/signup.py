@@ -18,7 +18,7 @@ class ChooseSchedule(StatesGroup):
     gym = State()
     sign_up_finished = State()
 
-async def days_keyboard(language: int):
+async def days_keyboard(language: int) -> InlineKeyboardMarkup:
     """
     Создает клавиатуру с кнопками для выбора дня записи в спортзал.
     Генерирует кнопки только для рабочих дней (пн-пт):
@@ -64,7 +64,7 @@ async def days_keyboard(language: int):
     # Возвращаем клавиатуру с кнопками
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
-async def pairs_keyboard(language: int):
+async def pairs_keyboard(language: int) -> InlineKeyboardMarkup:
     pairs_schedule = [
             {"pair": 1, "start": time(9, 0), "end": time(10, 35)},
             {"pair": 2, "start": time(10, 50), "end": time(12, 25)},
@@ -83,7 +83,7 @@ async def pairs_keyboard(language: int):
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-async def gyms_keyboard(language: int):
+async def gyms_keyboard(language: int) -> InlineKeyboardMarkup:
     buttons = []
     for i in range(len(GYM[language])):
         buttons.append([InlineKeyboardButton(text=GYM[language][i], callback_data='gym_'+str(i))])

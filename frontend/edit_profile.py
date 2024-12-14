@@ -16,7 +16,7 @@ class EditProfile(StatesGroup):
     edit_studentid = State()
     edit_language = State()
 
-async def show_edit_profile(language: int):
+async def show_edit_profile(language: int) -> InlineKeyboardBuilder:
     buttons = InlineKeyboardBuilder()
     buttons.row(
         types.InlineKeyboardButton(
