@@ -137,6 +137,30 @@ SIGNED_UP_SUCCESSFULLY = [
     '\u200f✅ تم التسجيل بنجاح! إِنْ شَاءَ ٱللَّٰهُ‎',
     '✅ 01010011 01101001 01100111 01101110 01100101 01100100 00100000 01110101 01110000 00100000 01110011 01110101 01100011 01100011 01100101 01110011 01110011 01100110 01110101 01101100 01101100 01111001'
 ]
+IF_YOU_WONT_COME = [
+    'Убедительная просьба заранее освободить место, если вы передумали.',
+    'Please, cancel your sign up if you change your mind.',
+    'Please, cancel your sign up if you change your mind.',
+    'Please, cancel your sign up if you change your mind.',
+    'Please, cancel your sign up if you change your mind.',
+    'Please, cancel your sign up if you change your mind.'
+]
+CANCEL_SIGNUP = [
+    '❌Отменить запись',
+    '❌Cancel sign up',
+    '❌Cancel',
+    '❌Cancel',
+    '❌Cancel',
+    '❌Cancel',
+]
+CANCELLED = [
+    'Вы отписались от занятия 👌',
+    'You\'ve unsigned up👌',
+    'You\'ve unsigned up👌',
+    'You\'ve unsigned up👌',
+    'You\'ve unsigned up👌',
+    'You\'ve unsigned up👌'
+]
 CHOSEN_DAY = [
     'День',
     'Day',

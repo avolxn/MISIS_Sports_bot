@@ -84,12 +84,16 @@ async def pairs_keyboard(language: int) -> InlineKeyboardMarkup:
 
 
 async def gyms_keyboard(language: int) -> InlineKeyboardMarkup:
-    buttons = []
+    buttons = list()
     for i in range(len(GYM[language])):
         buttons.append([InlineKeyboardButton(text=GYM[language][i], callback_data='gym_'+str(i))])
     buttons.append([InlineKeyboardButton(text=BACK[language], callback_data='weekday__')])
     return InlineKeyboardMarkup(inline_keyboard=buttons)   
 
+
+async def cancel_keyboard(language: int, record_id: int) -> InlineKeyboardMarkup:
+    buttons = [[InlineKeyboardButton(text=CANCEL_SIGNUP[language], callback_data='cancel_'+str(record_id))]]
+    return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 @router.callback_query(lambda callback: callback.data == "sign_up")
 async def signup_start(callback: types.CallbackQuery, state: FSMContext) -> None:
@@ -106,8 +110,7 @@ async def signup_start(callback: types.CallbackQuery, state: FSMContext) -> None
         и устанавливает состояние ChooseSchedule.pair
     """
     data = await get_userdata(telegram_id=callback.from_user.id)
-    language = int(data.language)
-    await callback.message.edit_text(CHOOSE_THE_DAY[language], reply_markup=await days_keyboard(language))
+    await callback.message.edit_text(CHOOSE_THE_DAY[data.language], reply_markup=await days_keyboard(language=data.language))
     await state.set_state(ChooseSchedule.pair)
     await callback.answer()
 
@@ -129,8 +132,7 @@ async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     day = callback.data.split('_')[1]
     if day: await state.update_data(day=int(day))
     data = await get_userdata(telegram_id=callback.from_user.id)
-    language = int(data.language)
-    await callback.message.edit_text(CHOOSE_THE_PAIR[language], reply_markup=await pairs_keyboard(language))
+    await callback.message.edit_text(CHOOSE_THE_PAIR[data.language], reply_markup=await pairs_keyboard(language=data.language))
     await state.set_state(ChooseSchedule.gym)
     await callback.answer()
 
@@ -152,30 +154,59 @@ async def pair_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     pair = callback.data.split('_')[1]
     await state.update_data(pair=int(pair))
     data = await get_userdata(telegram_id=callback.from_user.id)
-    language = int(data.language)
-    await callback.message.edit_text(CHOOSE_THE_GYM[language], reply_markup=await gyms_keyboard(language))
+    await callback.message.edit_text(CHOOSE_THE_GYM[data.language], reply_markup=await gyms_keyboard(language=data.language))
     await state.set_state(ChooseSchedule.sign_up_finished)
     await callback.answer()
 
 #Завершение записи
 @router.callback_query(lambda callback: callback.data.startswith('gym_'))
 async def gym_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
+    """
+    Обработчик выбора спортзала.
+    Сохраняет выбранный зал в состоянии и показывает сообщение об успешной записи.
+
+    Args:
+        callback (types.CallbackQuery): Объект callback-запроса с данными о выбранном зале
+        state (FSMContext): Контекст состояния пользователя
+        
+    Returns:
+        None: Функция не возвращает значение, но обновляет сообщение с новой клавиатурой
+        и очищает состояние.
+    """
     gym = callback.data.split('_')[1]
     await state.update_data(gym=int(gym))
     statedata = await state.get_data()
-    day = statedata['day']
-    pair = statedata['pair']
-    gym = statedata['gym']
+    day, pair, gym = statedata['day'], statedata['pair'], statedata['gym']
     data = await get_userdata(telegram_id=callback.from_user.id)
-    await sign_up_to_section(telegram_id=callback.from_user.id, student_id=data.student_id)
-    language = int(data.language)
+    record_id = await sign_up_to_section(telegram_id=callback.from_user.id, student_id=data.student_id)
     message = (
-        f"{SIGNED_UP_SUCCESSFULLY[language]}\n"
-        f"{CHOSEN_DAY[language]}: {DAYS[language][day % 7]}\n"
-        f"{CHOSEN_PAIR[language]}: {pair}\n"
-        f"{CHOSEN_GYM[language]}: {GYM[language][gym]}\n"
+        f"{SIGNED_UP_SUCCESSFULLY[data.language]}\n"
+        f"{CHOSEN_DAY[data.language]}: {DAYS[data.language][day % 7]}\n"
+        f"{CHOSEN_PAIR[data.language]}: {pair}\n"
+        f"{CHOSEN_GYM[data.language]}: {GYM[data.language][gym]}\n\n"
+        f"{IF_YOU_WONT_COME[data.language]}\n"
     )
+    await callback.message.edit_text(message, reply_markup=await cancel_keyboard(language=data.language, record_id=record_id))
+    await state.clear()
+    await callback.answer()
 
+@router.callback_query(lambda callback: callback.data.startswith('cancel_'))
+async def signup_cancelled(callback: types.CallbackQuery, state: FSMContext) -> None:
+    """
+    Отмена записи на пару.
+    Сохраняет выбранный зал в состоянии и показывает сообщение об успешной записи.
+
+    Args:
+        callback (types.CallbackQuery): Объект callback-запроса с данными об идентификаторе записи
+        state (FSMContext): Контекст состояния пользователя
+        
+    Returns:
+        None: Функция не возвращает значение, но удаляет сообщение и создаёт новое.
+    """
+    record_id = int(callback.data.split('_')[1])
+    await unsign(record_id=record_id)
+    data = await get_userdata(telegram_id=callback.from_user.id)
+    message = CANCELLED[data.language]
     await callback.message.delete()
     await callback.message.answer(message)
     await state.clear()

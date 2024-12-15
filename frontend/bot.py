@@ -41,7 +41,6 @@ async def cmd_start(message: types.Message, state: FSMContext) -> None:
         await reg_start(message=message, state=state)
     else:
         await message.answer(LONG_TIME_NO_SEE[int(data.language)]%(data.first_name))
-    return
 
 
 # profile - личный кабинет
@@ -56,24 +55,23 @@ async def profile(message: types.Message, state: FSMContext) -> None:
     Retur(ns: None
     """
     await state.clear()
-    
     data = await get_userdata(message.from_user.id)
     if not data:
         await reg_start(message=message, state=state)
-        return
-    language = int(data.language)
-    buttons = InlineKeyboardBuilder()
-    buttons.row(
-    types.InlineKeyboardButton(
-        text=SIGN_UP[language],
-        callback_data="sign_up")
-    )
-    buttons.row(
-    types.InlineKeyboardButton(
-        text=EDIT_PROFILE[language],
-        callback_data="edit_profile")
-    )
-    await message.answer(text=PROFILE_TEXT[language]%(data.last_name, data.first_name, data.student_id, data.points), 
+    else:
+        language = int(data.language)
+        buttons = InlineKeyboardBuilder()
+        buttons.row(
+        types.InlineKeyboardButton(
+            text=SIGN_UP[language],
+            callback_data="sign_up")
+        )
+        buttons.row(
+        types.InlineKeyboardButton(
+            text=EDIT_PROFILE[language],
+            callback_data="edit_profile")
+        )
+        await message.answer(text=PROFILE_TEXT[language]%(data.last_name, data.first_name, data.student_id, data.points), 
                          reply_markup=buttons.as_markup())
 
 async def main() -> None:

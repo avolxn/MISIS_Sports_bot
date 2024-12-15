@@ -1,3 +1,4 @@
+from typing import Union
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from sqlalchemy import insert, select, and_, update, delete
@@ -21,7 +22,7 @@ async def register_student(telegram_id: str, student_id: str, last_name: str, fi
         await session.commit()
 
 
-async def get_userdata(telegram_id: int):
+async def get_userdata(telegram_id: int) -> Union[Student, bool]:
     async with async_session_maker() as session:
         query_select = db.select(Student).where(Student.telegram_id == telegram_id)
         result = await session.execute(query_select)
@@ -31,7 +32,7 @@ async def get_userdata(telegram_id: int):
         return user_data
 
 
-async def get_pair_info(id: int):
+async def get_pair_info(id: int) -> None:
     pass
 
 async def update_language(telegram_id: int, language: int) -> None:
@@ -76,7 +77,7 @@ async def update_studentid(telegram_id: int, student_id: str) -> None:
 
 # Баллы начисляю автоматически. На случай, если Хонер-Телефон начнёт докапываться, мол,
 # у вас только обертка без БДшки
-async def sign_up_to_section(telegram_id: int, student_id: int) -> None:
+async def sign_up_to_section(telegram_id: int, student_id: int) -> int:
     async with async_session_maker() as session:
         async with session.begin():
             new_record = Records(
@@ -84,20 +85,16 @@ async def sign_up_to_section(telegram_id: int, student_id: int) -> None:
                 pair_id=0
             )
             session.add(new_record)
-            query_update = (
-                update(Student)
-                .where(Student.telegram_id == telegram_id)
-                .values(points = Student.points+10)
-            )
-            await session.execute(query_update)
+            await session.flush()
+            new_record_id = new_record.id
+            return new_record_id
 
 
-async def unsign(student_id: int) -> None: # Пока не работает и не используется!
+async def unsign(record_id: int) -> None: # Пока не работает и не используется!
     async with async_session_maker() as session:
         query_update = (
             delete(Records)
-            .where(Records.id == student_id)
-            .values(free_slots_left=Schedule.free_slots_left + 1)
+            .where(Records.id == record_id)
         )
         await session.execute(query_update)
         await session.commit()
