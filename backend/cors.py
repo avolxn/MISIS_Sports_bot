@@ -190,3 +190,13 @@ async def register_coaches_to_gyms(telegram_id, gyms) -> None:
                     gym = i)
                 session.add(new_coach_to_gym)
                 await session.commit()
+                
+async def get_coach_gyms(telegram_id: str):
+    async with async_session_maker() as session:
+        coach = await get_coach(telegram_id)
+        query_select = db.select(CoachToGym).where(CoachToGym.coach == coach.id)
+        result = (await session.execute(query_select)).all()
+        gyms = result
+        if gyms is None:
+            return False
+        return gyms

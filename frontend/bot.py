@@ -18,14 +18,14 @@ from config import BOT_TOKEN, BOT_RESERVE_TOKEN
 
 # Инициализация бота
 dp = Dispatcher()
-bot = Bot(BOT_RESERVE_TOKEN)
+bot = Bot(BOT_TOKEN)
 
 # Подключаем все сообщения регистрации
 dp.include_router(edit_profile_router)
 dp.include_router(register_router)
 dp.include_router(signup_router)
 dp.include_router(admin_router)
-# dp.include_router(coaches_router)
+dp.include_router(coaches_router)
 
 
 # start - запуск бота (регистрация)
@@ -81,13 +81,30 @@ async def profile(message: types.Message, state: FSMContext) -> None:
     Retur(ns: None
     """
     await state.clear()
-    data = await get_userdata(message.from_user.id)
-    if not data: 
+    user_data = await get_userdata(message.from_user.id)
+    if not user_data: 
         coach = await get_coach(message.from_user.id) 
         if not coach: 
             await reg_start(message=message, state=state)
+        else:
+            # Меню для тренера
+            buttons = InlineKeyboardBuilder()
+            buttons.row(
+            types.InlineKeyboardButton(
+                text=APPROVE_SIGNUPS[0],
+                callback_data="apprchoose")
+            )
+            buttons.row(
+            types.InlineKeyboardButton(
+                text=EXPORT_DB,
+                callback_data="getdatabase"
+            )
+        )
+            await message.answer(text=COACH_MENU%(coach.last_name, coach.first_name, (coach.patronymic if coach.patronymic else '')), 
+                                 reply_markup=buttons.as_markup())
     else:
-        language = int(data.language)
+        # Меню для студента
+        language = int(user_data.language)
         buttons = InlineKeyboardBuilder()
         buttons.row(
         types.InlineKeyboardButton(
@@ -99,18 +116,7 @@ async def profile(message: types.Message, state: FSMContext) -> None:
             text=EDIT_PROFILE[language],
             callback_data="edit_profile")
         )
-        buttons.row(
-        types.InlineKeyboardButton(
-            text=APPROVE_SIGNUPS[language],
-            callback_data="apprchoose")
-        )
-        buttons.row(
-            types.InlineKeyboardButton(
-                text="DATABASE TEST",
-                callback_data="getdatabase"
-            )
-        )
-        await message.answer(text=PROFILE_TEXT[language]%(data.last_name, data.first_name, data.student_id, data.points), 
+        await message.answer(text=PROFILE_TEXT[language]%(user_data.last_name, user_data.first_name, user_data.student_id, user_data.points), 
                          reply_markup=buttons.as_markup())
 
 async def main() -> None:

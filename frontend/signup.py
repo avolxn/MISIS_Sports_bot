@@ -109,10 +109,11 @@ async def pairs_keyboard(language: int, chosen_day: int, prefix: str = '', first
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-async def gyms_keyboard(language: int, prefix: str = '') -> InlineKeyboardMarkup:
+async def gyms_keyboard(language: int, prefix: str = '', gyms: list = [0, 1, 2, 3]) -> InlineKeyboardMarkup:
     buttons = list()
     for i in range(len(GYM[language])):
-        buttons.append([InlineKeyboardButton(text=GYM[language][i], callback_data=f'{prefix}gym_' + str(i+1))])
+        if i in gyms:
+            buttons.append([InlineKeyboardButton(text=GYM[language][i], callback_data=f'{prefix}gym_' + str(i+1))])
     buttons.append([InlineKeyboardButton(text=BACK[language], callback_data=f'{prefix}weekday__')])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
@@ -240,7 +241,7 @@ async def gym_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     if record_id:
         message = (
             f"{SIGNED_UP_SUCCESSFULLY[data.language]}\n"
-            f"{CHOSEN_DAY[data.language]}: {DAYS[data.language][(day % 7) + 1]} {date.strftime("%d.%m")}\n"
+            # f"{CHOSEN_DAY[data.language]}: {DAYS[data.language][(day % 7) + 1]} {date.strftime("%d.%m")}\n"
             f"{CHOSEN_PAIR[data.language]}: {pair}\n"
             f"{CHOSEN_GYM[data.language]}: {GYM[data.language][gym-1]}\n\n"
             f"{IF_YOU_WONT_COME[data.language]}\n"
