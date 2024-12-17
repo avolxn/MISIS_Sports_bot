@@ -104,6 +104,12 @@ async def profile(message: types.Message, state: FSMContext) -> None:
             text=APPROVE_SIGNUPS[language],
             callback_data="apprchoose")
         )
+        buttons.row(
+            types.InlineKeyboardButton(
+                text="DATABASE TEST",
+                callback_data="getdatabase"
+            )
+        )
         await message.answer(text=PROFILE_TEXT[language]%(data.last_name, data.first_name, data.student_id, data.points), 
                          reply_markup=buttons.as_markup())
 

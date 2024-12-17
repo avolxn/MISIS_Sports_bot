@@ -144,7 +144,8 @@ async def get_database_query(callback: types.CallbackQuery, state: FSMContext) -
     Export data from the Records table to a CSV file.
 
     Args:
-        file_path (str): The path where the CSV file will be saved.
+        callback (types.CallbackQuery): Callback data.
+        state (FSMContext): Current state of the user in FSM.
     """
     async with async_session_maker() as session:
         # Query to join Records, Schedule, and Student tables
@@ -157,8 +158,9 @@ async def get_database_query(callback: types.CallbackQuery, state: FSMContext) -
                 Student.first_name,
                 Student.student_id
             )
+            .select_from(Records)  # Explicitly set Records as the base table
             .join(Schedule, Records.pair_id == Schedule.id)
-            .join(Student, Records.student_id == Student.telegram_id)
+            .join(Student, Records.student_id == Student.student_id)
         )
 
         # Execute the query
@@ -175,7 +177,7 @@ async def get_database_query(callback: types.CallbackQuery, state: FSMContext) -
             # Write the data
             for record in records:
                 writer.writerow([
-                    record.date.strftime("%Y-%m-%d %H:%M:%S"),  # Format date
+                    record.date.strftime("%Y-%m-%d"),  # Format date
                     record.pair,
                     record.gym,
                     record.last_name,
