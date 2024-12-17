@@ -46,7 +46,7 @@ class Records(Base):
     __tablename__ = "records"
     id = Column(BigInteger(), primary_key=True, autoincrement=True)
     student_id = Column(BigInteger())
-    pair_id = Column(BigInteger()) # Column(ForeignKey("schedule.id"))
+    pair_id = Column(ForeignKey("schedule.id"))
     approved = Column(Boolean(), default=False)
     def __repr__(self):
         return f""

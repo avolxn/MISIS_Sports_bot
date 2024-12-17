@@ -9,3 +9,4 @@ load_dotenv()
 # Access the variables
 DATABASE_URL = os.getenv('DATABASE_URL') 
 BOT_TOKEN = os.getenv('BOT_TOKEN')
+BOT_RESERVE_TOKEN = os.getenv('BOT_RESERVE_TOKEN')

@@ -64,7 +64,8 @@ async def edit_firstname_request(callback: types.CallbackQuery, state: FSMContex
     data = await get_userdata(telegram_id=callback.from_user.id)
     language = int(data.language)
 
-    await callback.message.edit_text(WHATS_FIRSTNAME[language])
+    await callback.message.delete()
+    await callback.message.answer(WHATS_FIRSTNAME[language])
     await callback.answer()
     await state.set_state(EditProfile.edit_firstname)
 
@@ -89,7 +90,8 @@ async def edit_lastname_request(callback: types.CallbackQuery, state: FSMContext
     data = await get_userdata(telegram_id=callback.from_user.id)
     language = int(data.language)
 
-    await callback.message.edit_text(WHATS_LASTNAME[language])
+    await callback.message.delete()
+    await callback.message.answer(WHATS_LASTNAME[language])
     await callback.answer()
     await state.set_state(EditProfile.edit_lastname)
 
@@ -113,7 +115,8 @@ async def edit_lastname_process(message: types.Message, state: FSMContext) -> No
 async def edit_studentid_request(callback: types.CallbackQuery, state: FSMContext) -> None:
     data = await get_userdata(telegram_id=callback.from_user.id)
     language = int(data.language)
-    await callback.message.edit_text(WHATS_STUDENTID[language])
+    await callback.message.delete()
+    await callback.message.answer(WHATS_STUDENTID[language])
     await callback.answer()
     await state.set_state(EditProfile.edit_studentid)
 

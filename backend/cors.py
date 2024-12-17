@@ -31,9 +31,46 @@ async def get_userdata(telegram_id: int) -> Union[Student, bool]:
             return False
         return user_data
 
+async def get_userdata_by_student_id(student_id: int) -> Union[Student, bool]:
+    async with async_session_maker() as session:
+        query_select = db.select(Student).where(Student.student_id == student_id)
+        result = await session.execute(query_select)
+        user_data = result.scalars().first()  # Извлечение первой записи (или None, если записи нет)
+        if user_data is None:
+            return False
+        return user_data
 
-async def get_pair_info(id: int) -> None:
-    pass
+
+async def get_unapproved_signups(pair: int, gym: int, date: datetime) -> None:
+    pair_id = await get_pair_id(pair=pair, gym=gym, date=date)
+    async with async_session_maker() as session:
+        query_select = db.select(Records).where((Records.approved == False) & (Records.pair_id == pair_id))
+        result = await session.execute(query_select)
+        signups = result.scalars()
+        return signups
+
+async def get_pair_id(pair: int, gym: int, date: datetime) -> int:
+    async with async_session_maker() as session:
+        query_select = db.select(Schedule).where((Schedule.pair == pair) & (Schedule.gym == gym) & (Schedule.date == date))
+        result = await session.execute(query_select)
+        signups = result.scalars().first()
+        return signups.id
+
+async def approve_signup(id: int, student_id: int) -> None:
+    async with async_session_maker() as session:
+        async with session.begin():
+            query_update = (
+                update(Records)
+                .where(Records.id == id)
+                .values(approved = True)
+            )
+            await session.execute(query_update)
+            query_update = (
+                update(Student)
+                .where(Student.student_id == student_id)
+                .values(points = Student.points+10)
+            )
+            await session.execute(query_update)
 
 async def update_language(telegram_id: int, language: int) -> None:
     async with async_session_maker() as session:
@@ -75,14 +112,19 @@ async def update_studentid(telegram_id: int, student_id: str) -> None:
         await session.execute(query_update)
         await session.commit()
 
-# Баллы начисляю автоматически. На случай, если Хонер-Телефон начнёт докапываться, мол,
-# у вас только обертка без БДшки
-async def sign_up_to_section(telegram_id: int, student_id: int) -> int:
+
+async def sign_up_to_section(telegram_id: int, student_id: int, pair: int, gym: int, date: datetime) -> Union[int, bool]:
+    pair_id = await get_pair_id(pair=pair, gym=gym, date=date)
     async with async_session_maker() as session:
         async with session.begin():
+            query_select = db.select(Records).where((Records.pair_id == pair_id) & (Records.student_id == student_id))
+            result = await session.execute(query_select)
+            if result.scalars().first():
+                return False
+            
             new_record = Records(
                 student_id=student_id,
-                pair_id=0
+                pair_id=pair_id
             )
             session.add(new_record)
             await session.flush()

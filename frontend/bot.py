@@ -9,18 +9,20 @@ from .register import * # Состояния в "диалогах"
 from .register import router as register_router
 from .signup import router as signup_router
 from .edit_profile import router as edit_profile_router
+from .admin_features import router as admin_router
 from backend.database import *  # Функции бэкенда
 
-from config import BOT_TOKEN
+from config import BOT_TOKEN, BOT_RESERVE_TOKEN
 
 # Инициализация бота
 dp = Dispatcher()
-bot = Bot(BOT_TOKEN)
+bot = Bot(BOT_RESERVE_TOKEN)
 
 # Подключаем все сообщения регистрации
 dp.include_router(edit_profile_router)
 dp.include_router(register_router)
 dp.include_router(signup_router)
+dp.include_router(admin_router)
 
 
 # start - запуск бота (регистрация)
@@ -70,6 +72,11 @@ async def profile(message: types.Message, state: FSMContext) -> None:
         types.InlineKeyboardButton(
             text=EDIT_PROFILE[language],
             callback_data="edit_profile")
+        )
+        buttons.row(
+        types.InlineKeyboardButton(
+            text=APPROVE_SIGNUPS[language],
+            callback_data="apprchoose")
         )
         await message.answer(text=PROFILE_TEXT[language]%(data.last_name, data.first_name, data.student_id, data.points), 
                          reply_markup=buttons.as_markup())

@@ -105,6 +105,15 @@ EDIT_PROFILE = [
     '⚙️ 01000101 01100100 01101001 01110100 00100000 01110000 01110010 01101111 01100110 01101001 01101100 01100101'
 ]
 
+APPROVE_SIGNUPS = [
+    '☑️ Подтвердить записи',
+    '☑️ Approve signups',
+    '☑️ Approve signups',
+    '☑️ Approve signups',
+    '☑️ Approve signups',
+    '☑️ Approve signups'
+]
+
 CHOOSE_THE_DAY = [
     '🗓️ Выберите день записи',
     '🗓️ Choose the day',
@@ -160,6 +169,14 @@ CANCELLED = [
     'You\'ve unsigned up👌',
     'You\'ve unsigned up👌',
     'You\'ve unsigned up👌'
+]
+ALREADY_SIGNED_UP = [
+    'Вы уже записаны',
+    'You are already signed up',
+    'You are already signed up',
+    'You are already signed up',
+    'You are already signed up',
+    'You are already signed up',
 ]
 CHOSEN_DAY = [
     'День',
