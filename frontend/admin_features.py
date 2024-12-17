@@ -8,6 +8,7 @@ from .register import *
 from .signup import days_keyboard, pairs_keyboard, gyms_keyboard
 from frontend.text import *
 from datetime import datetime, timedelta, time
+import csv
 
 router = Router()
 
@@ -66,7 +67,11 @@ async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     data = await get_userdata(telegram_id=callback.from_user.id)
     await callback.message.edit_text(
         CHOOSE_THE_PAIR[data.language],
-        reply_markup=await pairs_keyboard(language=data.language, chosen_day=chosen_day, prefix='appr', first_callback="apprchoose")
+        reply_markup=await pairs_keyboard(language=data.language, 
+                                          chosen_day=chosen_day, 
+                                          prefix='appr', 
+                                          first_callback="apprchoose",
+                                          is_check=True)
     )
     await state.set_state(ChooseSchedule.gym)
     await callback.answer()
@@ -135,4 +140,47 @@ async def approve_students_query(callback: types.CallbackQuery, state: FSMContex
 
 @router.callback_query(lambda callback: callback.data == "getdatabase")
 async def get_database_query(callback: types.CallbackQuery, state: FSMContext) -> None:
-    pass
+    """
+    Export data from the Records table to a CSV file.
+
+    Args:
+        file_path (str): The path where the CSV file will be saved.
+    """
+    async with async_session_maker() as session:
+        # Query to join Records, Schedule, and Student tables
+        query = (
+            select(
+                Schedule.date,
+                Schedule.pair,
+                Schedule.gym,
+                Student.last_name,
+                Student.first_name,
+                Student.student_id
+            )
+            .join(Schedule, Records.pair_id == Schedule.id)
+            .join(Student, Records.student_id == Student.telegram_id)
+        )
+
+        # Execute the query
+        result = await session.execute(query)
+        records = result.fetchall()
+
+        # Write to CSV
+        with open('db.csv', mode='w', newline='', encoding='utf-8') as file:
+            writer = csv.writer(file)
+
+            # Write the header
+            writer.writerow(["Дата посещения", "Пара", "Зал", "Фамилия", "Имя", "Номер студбилета"])
+
+            # Write the data
+            for record in records:
+                writer.writerow([
+                    record.date.strftime("%Y-%m-%d %H:%M:%S"),  # Format date
+                    record.pair,
+                    record.gym,
+                    record.last_name,
+                    record.first_name,
+                    record.student_id
+                ])
+
+    print(f"Records exported to {'db.csv'}")

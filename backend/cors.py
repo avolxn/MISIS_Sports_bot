@@ -2,7 +2,7 @@ from typing import Union
 from aiogram.types import Message
 from aiogram.fsm.context import FSMContext
 from sqlalchemy import insert, select, and_, update, delete
-from backend.models import Student, Schedule, Records
+from backend.models import Student, Schedule, Records, Coach, CoachToGym
 from backend.database import async_session_maker
 from datetime import timedelta, datetime
 import sqlalchemy as db
@@ -140,3 +140,53 @@ async def unsign(record_id: int) -> None: # Пока не работает и н
         )
         await session.execute(query_update)
         await session.commit()
+
+
+async def get_coach(telegram_id: int):
+    async with async_session_maker() as session:
+        query_select = db.select(Coach).where(Coach.telegram_id == int(telegram_id))
+        result = await session.execute(query_select)
+        coach_data = result.scalars().first()
+        if coach_data is None:
+            return False
+        return coach_data
+
+
+async def get_coach_by_secret(secret_token: int) -> Union[Coach, bool]:
+    async with async_session_maker() as session:
+        query_select = db.select(Coach).where(Coach.secret_token == secret_token)
+        result = await session.execute(query_select)
+        coach_data = result.scalars().first()  # Извлечение первой записи (или None, если записи нет)
+        if coach_data is None:
+            return False
+        return coach_data
+    
+async def verify_secret(id, telegram_id):
+    async with async_session_maker() as session:
+        query_update = db.update(Coach).where(Coach.id == id).values(telegram_id=int(telegram_id), is_approved=True)
+        await session.execute(query_update)
+        await session.commit()
+
+async def register_coach(first_name: str, last_name: str, patronymic: str, secret_token: str=None) -> None:
+        async with async_session_maker() as session:
+            new_coach = Coach(
+                first_name=first_name,
+                last_name=last_name, 
+                patronymic=patronymic, 
+                # is_admin=is_admin,
+                secret_token=secret_token
+            )
+            session.add(new_coach)
+            await session.commit()
+            return new_coach.id
+            
+            
+async def register_coaches_to_gyms(telegram_id, gyms) -> None:
+    async with async_session_maker() as session:
+        for i in range(len(gyms)):
+            if gyms[i]:
+                new_coach_to_gym = CoachToGym(
+                    coach = int(telegram_id),
+                    gym = i)
+                session.add(new_coach_to_gym)
+                await session.commit()

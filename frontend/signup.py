@@ -55,12 +55,12 @@ async def days_keyboard(language: int, prefix: str = '') -> InlineKeyboardMarkup
         # Форматируем дату как DD.MM 
         formatted_date = current_date.strftime("%d.%m") 
         # Добавляем кнопку с названием дня и датой 
-        buttons.append([InlineKeyboardButton(text=f"{day_name} {formatted_date}", callback_data=prefix+'weekday_'+str(i+1)+'_'+current_date.strftime("%d.%m.%y"))]) 
+        buttons.append([InlineKeyboardButton(text=f"{day_name} {formatted_date}", callback_data=prefix+'weekday_'+str(i)+'_'+current_date.strftime("%d.%m.%y"))]) 
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-async def pairs_keyboard(language: int, chosen_day: int, prefix: str = '', first_callback: str = "sign_up") -> InlineKeyboardMarkup:
+async def pairs_keyboard(language: int, chosen_day: int, prefix: str = '', first_callback: str = "sign_up", is_check: bool = False) -> InlineKeyboardMarkup:
     """
     Создает клавиатуру с доступными временными парами.
     Показывает только те пары, которые:
@@ -97,7 +97,7 @@ async def pairs_keyboard(language: int, chosen_day: int, prefix: str = '', first
     # Для текущего дня проверяем время
     # Для будущих дней показываем все пары
     for pair in pairs_schedule:
-        if (chosen_date.date() != now.date()) or (current_time < pair["start"]):
+        if (chosen_date.date() != now.date()) or (current_time < pair["start"]) or is_check:
             start = pair['start']
             end = pair['end']
             buttons.append([InlineKeyboardButton(
@@ -163,9 +163,15 @@ async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
         и устанавливает состояние ChooseSchedule.gym
     """
     day = callback.data.split('_')[1]
+    chosen_day = 0
+
     if day:
         chosen_day = int(day)
         await state.update_data(day=chosen_day, date=callback.data.split('_')[2])
+    else:
+        statedata = await state.get_data()
+        chosen_day = statedata['day']
+    
     data = await get_userdata(telegram_id=callback.from_user.id)
     await callback.message.edit_text(
         CHOOSE_THE_PAIR[data.language],
@@ -234,7 +240,7 @@ async def gym_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     if record_id:
         message = (
             f"{SIGNED_UP_SUCCESSFULLY[data.language]}\n"
-            f"{CHOSEN_DAY[data.language]}: {DAYS[data.language][day % 7]} {date.strftime("%d.%m")}\n"
+            f"{CHOSEN_DAY[data.language]}: {DAYS[data.language][(day % 7) + 1]} {date.strftime("%d.%m")}\n"
             f"{CHOSEN_PAIR[data.language]}: {pair}\n"
             f"{CHOSEN_GYM[data.language]}: {GYM[data.language][gym-1]}\n\n"
             f"{IF_YOU_WONT_COME[data.language]}\n"
