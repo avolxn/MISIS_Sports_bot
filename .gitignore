@@ -46,3 +46,5 @@ build/
 
 *.pyc
 .DS_Store
+
+db.csv

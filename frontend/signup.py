@@ -2,11 +2,9 @@ from aiogram import types
 from aiogram import Router
 from aiogram.fsm.state import State, StatesGroup
 from aiogram.fsm.context import FSMContext
-from aiogram.enums import ParseMode
 from .text import *
 from backend.cors import *
-from aiogram.types import KeyboardButton, ReplyKeyboardMarkup, \
-    InlineKeyboardMarkup, InlineKeyboardButton
+from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from datetime import datetime, timedelta, time
 
 router = Router()
@@ -20,7 +18,7 @@ class ChooseSchedule(StatesGroup):
     sign_up_finished = State()
 
 
-async def days_keyboard(language: int, prefix: str = '') -> InlineKeyboardMarkup:
+async def days_keyboard(language: int, prefix: str = "") -> InlineKeyboardMarkup:
     """
     Создает клавиатуру с кнопками для выбора дня записи в спортзал.
     Генерирует кнопки только для рабочих дней (пн-пт):
@@ -47,20 +45,37 @@ async def days_keyboard(language: int, prefix: str = '') -> InlineKeyboardMarkup
 
     start_day = start_date.weekday()
     buttons = list()
-    for i in range(5-start_day):
-        current_date = start_date + timedelta(days=i) 
-        current_day = current_date.weekday()  
-        # Получаем название дня на выбранном языке 
-        day_name = DAYS[language][current_day % 7] 
-        # Форматируем дату как DD.MM 
-        formatted_date = current_date.strftime("%d.%m") 
-        # Добавляем кнопку с названием дня и датой 
-        buttons.append([InlineKeyboardButton(text=f"{day_name} {formatted_date}", callback_data=prefix+'weekday_'+str(i)+'_'+current_date.strftime("%d.%m.%y"))]) 
+    for i in range(5 - start_day):
+        current_date = start_date + timedelta(days=i)
+        current_day = current_date.weekday()
+        # Получаем название дня на выбранном языке
+        day_name = DAYS[language][current_day % 7]
+        # Форматируем дату как DD.MM
+        formatted_date = current_date.strftime("%d.%m")
+        # Добавляем кнопку с названием дня и датой
+        buttons.append(
+            [
+                InlineKeyboardButton(
+                    text=f"{day_name} {formatted_date}",
+                    callback_data=prefix
+                    + "weekday_"
+                    + str(i)
+                    + "_"
+                    + current_date.strftime("%d.%m.%y"),
+                )
+            ]
+        )
 
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-async def pairs_keyboard(language: int, chosen_day: int, prefix: str = '', first_callback: str = "sign_up", is_check: bool = False) -> InlineKeyboardMarkup:
+async def pairs_keyboard(
+    language: int,
+    chosen_day: int,
+    prefix: str = "",
+    first_callback: str = "sign_up",
+    is_check: bool = False,
+) -> InlineKeyboardMarkup:
     """
     Создает клавиатуру с доступными временными парами.
     Показывает только те пары, которые:
@@ -97,33 +112,71 @@ async def pairs_keyboard(language: int, chosen_day: int, prefix: str = '', first
     # Для текущего дня проверяем время
     # Для будущих дней показываем все пары
     for pair in pairs_schedule:
-        if (chosen_date.date() != now.date()) or (current_time < pair["start"]) or is_check:
-            start = pair['start']
-            end = pair['end']
-            buttons.append([InlineKeyboardButton(
-                text=f"{start.strftime('%H:%M')} - {end.strftime('%H:%M')}",
-                callback_data=f'{prefix}pair_{pair["pair"]}'
-            )])
+        if (
+            (chosen_date.date() != now.date())
+            or (current_time < pair["start"])
+            or is_check
+        ):
+            start = pair["start"]
+            end = pair["end"]
+            buttons.append(
+                [
+                    InlineKeyboardButton(
+                        text=f"{start.strftime('%H:%M')} - {end.strftime('%H:%M')}",
+                        callback_data=f'{prefix}pair_{pair["pair"]}',
+                    )
+                ]
+            )
 
-    buttons.append([InlineKeyboardButton(text=BACK[language], callback_data='sign_up')])
+    buttons.append([InlineKeyboardButton(text=BACK[language], callback_data="sign_up")])
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-async def gyms_keyboard(language: int, prefix: str = '', gyms: list = [0, 1, 2, 3]) -> InlineKeyboardMarkup:
+async def gyms_keyboard(
+    language: int, prefix: str = "", gyms: list = [0, 1, 2, 3]
+) -> InlineKeyboardMarkup:
+    """
+    Получаем клавиатуру с залами
+    """
     buttons = list()
     for i in range(len(GYM[language])):
         if i in gyms:
-            buttons.append([InlineKeyboardButton(text=GYM[language][i], callback_data=f'{prefix}gym_' + str(i+1))])
-    buttons.append([InlineKeyboardButton(text=BACK[language], callback_data=f'{prefix}weekday__')])
+            buttons.append(
+                [
+                    InlineKeyboardButton(
+                        text=GYM[language][i],
+                        callback_data=f"{prefix}gym_" + str(i + 1),
+                    )
+                ]
+            )
+    buttons.append(
+        [InlineKeyboardButton(text=BACK[language], callback_data=f"{prefix}weekday__")]
+    )
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
-async def cancel_keyboard(language: int, record_id: int, prefix: str = '') -> InlineKeyboardMarkup:
-    buttons = [[InlineKeyboardButton(text=CANCEL_SIGNUP[language], callback_data=f'{prefix}cancel_{str(record_id)}')]]
+async def cancel_keyboard(
+    language: int, record_id: int, prefix: str = ""
+) -> InlineKeyboardMarkup:
+    """
+    Получаем клавиатуру с отменой пары
+    """
+    buttons = [
+        [
+            InlineKeyboardButton(
+                text=CANCEL_SIGNUP[language],
+                callback_data=f"{prefix}cancel_{str(record_id)}",
+            )
+        ]
+    ]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
+
 
 async def back_keyboard(language: int) -> InlineKeyboardMarkup:
-    buttons = [[InlineKeyboardButton(text=BACK[language], callback_data=f'pair__')]]
+    """
+    Получаем клавиатуру с кнопкой назад
+    """
+    buttons = [[InlineKeyboardButton(text=BACK[language], callback_data=f"pair__")]]
     return InlineKeyboardMarkup(inline_keyboard=buttons)
 
 
@@ -142,14 +195,16 @@ async def signup_start(callback: types.CallbackQuery, state: FSMContext) -> None
         и устанавливает состояние ChooseSchedule.pair
     """
     data = await get_userdata(telegram_id=callback.from_user.id)
-    await callback.message.edit_text(CHOOSE_THE_DAY[data.language],
-                                     reply_markup=await days_keyboard(language=data.language))
+    await callback.message.edit_text(
+        CHOOSE_THE_DAY[data.language],
+        reply_markup=await days_keyboard(language=data.language),
+    )
     await state.set_state(ChooseSchedule.pair)
     await callback.answer()
 
 
 # Выбор пары
-@router.callback_query(lambda callback: callback.data.startswith('weekday_'))
+@router.callback_query(lambda callback: callback.data.startswith("weekday_"))
 async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     """
     Обработчик выбора дня недели.
@@ -163,27 +218,29 @@ async def day_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
         None: Функция не возвращает значение, но обновляет сообщение с новой клавиатурой
         и устанавливает состояние ChooseSchedule.gym
     """
-    day = callback.data.split('_')[1]
+    day = callback.data.split("_")[1]
     chosen_day = 0
 
     if day:
         chosen_day = int(day)
-        await state.update_data(day=chosen_day, date=callback.data.split('_')[2])
+        await state.update_data(day=chosen_day, date=callback.data.split("_")[2])
     else:
         statedata = await state.get_data()
-        chosen_day = statedata['day']
-    
+        chosen_day = statedata["day"]
+
     data = await get_userdata(telegram_id=callback.from_user.id)
     await callback.message.edit_text(
         CHOOSE_THE_PAIR[data.language],
-        reply_markup=await pairs_keyboard(language=data.language, chosen_day=chosen_day)
+        reply_markup=await pairs_keyboard(
+            language=data.language, chosen_day=chosen_day
+        ),
     )
     await state.set_state(ChooseSchedule.gym)
     await callback.answer()
 
 
 # Выбор зала
-@router.callback_query(lambda callback: callback.data.startswith('pair_'))
+@router.callback_query(lambda callback: callback.data.startswith("pair_"))
 async def pair_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     """
     Обработчик выбора временной пары.
@@ -197,18 +254,20 @@ async def pair_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
         None: Функция не возвращает значение, но обновляет сообщение с новой клавиатурой
         и устанавливает состояние ChooseSchedule.sign_up_finished
     """
-    pair = callback.data.split('_')[1]
+    pair = callback.data.split("_")[1]
     if pair:
         await state.update_data(pair=int(pair))
     data = await get_userdata(telegram_id=callback.from_user.id)
-    await callback.message.edit_text(CHOOSE_THE_GYM[data.language],
-                                     reply_markup=await gyms_keyboard(language=data.language))
+    await callback.message.edit_text(
+        CHOOSE_THE_GYM[data.language],
+        reply_markup=await gyms_keyboard(language=data.language),
+    )
     await state.set_state(ChooseSchedule.sign_up_finished)
     await callback.answer()
 
 
 # Завершение записи
-@router.callback_query(lambda callback: callback.data.startswith('gym_'))
+@router.callback_query(lambda callback: callback.data.startswith("gym_"))
 async def gym_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
     """
     Обработчик выбора спортзала.
@@ -222,39 +281,51 @@ async def gym_chosen(callback: types.CallbackQuery, state: FSMContext) -> None:
         None: Функция не возвращает значение, но обновляет сообщение с новой клавиатурой
         и очищает состояние.
     """
-    gym = callback.data.split('_')[1]
+    gym = callback.data.split("_")[1]
     await state.update_data(gym=int(gym))
     statedata = await state.get_data()
-    date, day, pair, gym = statedata['date'], statedata['day'], statedata['pair'], statedata['gym']
+    date, day, pair, gym = (
+        statedata["date"],
+        statedata["day"],
+        statedata["pair"],
+        statedata["gym"],
+    )
     data = await get_userdata(telegram_id=callback.from_user.id)
-    
-    date = date.split('.')
-    date = datetime(2000+int(date[2]), int(date[1]), int(date[0]))
-    
+
+    date = date.split(".")
+    date = datetime(2000 + int(date[2]), int(date[1]), int(date[0]))
+
     record_id = await sign_up_to_section(
-        telegram_id=callback.from_user.id, 
-        student_id=data.student_id, 
+        telegram_id=callback.from_user.id,
+        student_id=data.student_id,
         pair=pair,
         gym=gym,
-        date=date
+        date=date,
     )
     if record_id:
         message = (
             f"{SIGNED_UP_SUCCESSFULLY[data.language]}\n"
-            # f"{CHOSEN_DAY[data.language]}: {DAYS[data.language][(day % 7) + 1]} {date.strftime("%d.%m")}\n"
+            f"{CHOSEN_DAY[data.language]}: {DAYS[data.language][(day % 7) + 1]} {date.strftime("%d.%m")}\n"
             f"{CHOSEN_PAIR[data.language]}: {pair}\n"
             f"{CHOSEN_GYM[data.language]}: {GYM[data.language][gym-1]}\n\n"
             f"{IF_YOU_WONT_COME[data.language]}\n"
         )
-        await callback.message.edit_text(message,
-                                        reply_markup=await cancel_keyboard(language=data.language, record_id=record_id))
+        await callback.message.edit_text(
+            message,
+            reply_markup=await cancel_keyboard(
+                language=data.language, record_id=record_id
+            ),
+        )
         await state.clear()
     else:
-        await callback.message.edit_text(ALREADY_SIGNED_UP[data.language], reply_markup=await back_keyboard(language=data.language))
+        await callback.message.edit_text(
+            ALREADY_SIGNED_UP[data.language],
+            reply_markup=await back_keyboard(language=data.language),
+        )
     await callback.answer()
 
 
-@router.callback_query(lambda callback: callback.data.startswith('cancel_'))
+@router.callback_query(lambda callback: callback.data.startswith("cancel_"))
 async def signup_cancelled(callback: types.CallbackQuery, state: FSMContext) -> None:
     """
     Отмена записи на пару.
@@ -267,7 +338,7 @@ async def signup_cancelled(callback: types.CallbackQuery, state: FSMContext) -> 
     Returns:
         None: Функция не возвращает значение, но удаляет сообщение и создаёт новое.
     """
-    record_id = int(callback.data.split('_')[1])
+    record_id = int(callback.data.split("_")[1])
     await unsign(record_id=record_id)
     data = await get_userdata(telegram_id=callback.from_user.id)
     message = CANCELLED[data.language]
@@ -275,5 +346,3 @@ async def signup_cancelled(callback: types.CallbackQuery, state: FSMContext) -> 
     await callback.message.answer(message)
     await state.clear()
     await callback.answer()
-
-

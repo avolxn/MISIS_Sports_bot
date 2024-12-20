@@ -3,14 +3,16 @@ from sqlalchemy.orm import sessionmaker
 from .models import * 
 import sqlalchemy as db 
 from config import DATABASE_URL, SUPERUSER_ID, SUPERUSER_FIRST_NAME, SUPERUSER_LAST_NAME, SUPERUSER_PATRONYMIC # DATABASE_URL - это ссылка на подключение к бд. в ней 
-# есть и пароль и адрес и всё остальное. Пока что сам создай postgresql БД у себя на компе 
-# и с ней работай. Я же (Богдан), потом создам общую БД и скину вам ссылку 
-# Это файл, через который идёт подключение к БД 
- 
+
+# Подключаем базу данных
 engine = create_async_engine(DATABASE_URL, echo=True, future=True) 
 async_session_maker = sessionmaker(engine, class_=AsyncSession, expire_on_commit=False) 
- 
+
+
 async def get_coach(telegram_id: int): 
+    """
+    Получаем данные супер админа
+    """
     async with async_session_maker() as session: 
         query_select = db.select(Coach).where(Coach.telegram_id == int(telegram_id)) 
         result = await session.execute(query_select) 
@@ -19,8 +21,11 @@ async def get_coach(telegram_id: int):
             return False 
         return coach_data 
  
- 
+
 async def register_coach(telegram_id: str, first_name: str, last_name: str, patronymic: str, is_admin: bool, secret_token: str=None) -> None: 
+    """
+    Добавляем супер админа
+    """
     if not (await get_coach(telegram_id)): 
         async with async_session_maker() as session: 
             new_coach = Coach( 
@@ -35,8 +40,11 @@ async def register_coach(telegram_id: str, first_name: str, last_name: str, patr
             await session.commit() 
  
 async def init_db(): 
+    """
+    Запускаем генерацию таблиц и при надобности заносим супер админа
+    """
     async with engine.begin() as conn: 
         await conn.run_sync(Base.metadata.create_all) 
- 
+    
     if (not await get_coach(SUPERUSER_ID)): 
-     await register_coach(SUPERUSER_ID, SUPERUSER_FIRST_NAME, SUPERUSER_LAST_NAME, SUPERUSER_PATRONYMIC, True)
+        await register_coach(SUPERUSER_ID, SUPERUSER_FIRST_NAME, SUPERUSER_LAST_NAME, SUPERUSER_PATRONYMIC, True)
